@@ -1,0 +1,696 @@
+.
+├── Makefile
+├── a.txt
+├── cJSON.c
+├── cJSON.h
+├── cJSON.o
+├── crypto
+│   ├── aes-gcm
+│   │   └── aes_gcm.c
+│   ├── cifra
+│   ├── ecc
+│   │   ├── LICENSE.txt
+│   │   ├── README.md
+│   │   ├── asm_arm.inc
+│   │   ├── asm_arm_mult_square.inc
+│   │   ├── asm_arm_mult_square_umaal.inc
+│   │   ├── asm_avr.inc
+│   │   ├── asm_avr_mult_square.inc
+│   │   ├── curve-specific.inc
+│   │   ├── emk_project.py
+│   │   ├── emk_rules.py
+│   │   ├── examples
+│   │   │   └── ecc_test
+│   │   │       └── ecc_test.ino
+│   │   ├── library.properties
+│   │   ├── platform-specific.inc
+│   │   ├── scripts
+│   │   │   ├── mult_arm.py
+│   │   │   ├── mult_avr.py
+│   │   │   ├── mult_avr_extra.py
+│   │   │   ├── square_arm.py
+│   │   │   └── square_avr.py
+│   │   ├── test
+│   │   │   ├── ecdsa_test_vectors.c
+│   │   │   ├── emk_rules.py
+│   │   │   ├── public_key_test_vectors.c
+│   │   │   ├── test_compress.c
+│   │   │   ├── test_compute.c
+│   │   │   ├── test_ecdh.c
+│   │   │   ├── test_ecdsa.c
+│   │   │   └── test_ecdsa_deterministic.c.example
+│   │   ├── types.h
+│   │   ├── uECC.c
+│   │   ├── uECC.h
+│   │   ├── uECC.o
+│   │   └── uECC_vli.h
+│   ├── micro-ecc
+│   ├── salty
+│   ├── sha256
+│   │   ├── sha256.c
+│   │   ├── sha256.h
+│   │   └── sha256.o
+│   └── tiny-AES-c
+│       ├── Makefile
+│       ├── README.md
+│       ├── aes.c
+│       ├── aes.h
+│       ├── aes.hpp
+│       ├── aes.o
+│       ├── library.json
+│       ├── test.c
+│       └── unlicense.txt
+├── main
+├── main.c
+├── main.o
+├── mycbor.c
+├── mycbor.h
+├── mycbor.o
+├── mycrypto.c
+├── mycrypto.h
+├── mycrypto.o
+├── solokeys
+│   ├── 99-solo.rules
+│   ├── ALPHA_VERSION
+│   ├── CODE_OF_CONDUCT.md
+│   ├── Dockerfile
+│   ├── LICENSE
+│   ├── LICENSE-APACHE
+│   ├── LICENSE-MIT
+│   ├── Makefile
+│   ├── README.md
+│   ├── SECURITY.md
+│   ├── STABLE_VERSION
+│   ├── builds
+│   ├── crypto
+│   │   ├── aes-gcm
+│   │   │   └── aes_gcm.c
+│   │   ├── cifra
+│   │   │   ├── COPYING
+│   │   │   ├── README.md
+│   │   │   ├── curve25519-shootout.md
+│   │   │   ├── doc
+│   │   │   │   ├── Makefile
+│   │   │   │   ├── build.py
+│   │   │   │   ├── conf.py
+│   │   │   │   └── index.rst
+│   │   │   ├── extra_vecs
+│   │   │   │   ├── Makefile
+│   │   │   │   ├── README.md
+│   │   │   │   ├── libsodium-extra.py
+│   │   │   │   ├── openssl-hash.c
+│   │   │   │   └── python-hash.py
+│   │   │   └── src
+│   │   │       ├── Makefile
+│   │   │       ├── aes.c
+│   │   │       ├── aes.h
+│   │   │       ├── arm
+│   │   │       │   ├── Makefile
+│   │   │       │   ├── analyse.py
+│   │   │       │   ├── boot.c
+│   │   │       │   ├── curve25519-results.txt
+│   │   │       │   ├── ext
+│   │   │       │   │   └── cutest.h
+│   │   │       │   ├── linkscript.efm32.ld
+│   │   │       │   ├── linkscript.lm3s6965evb.ld
+│   │   │       │   ├── linkscript.qemucm3.ld
+│   │   │       │   ├── linkscript.std.ld
+│   │   │       │   ├── linkscript.stm32f0.ld
+│   │   │       │   ├── linkscript.stm32f1.ld
+│   │   │       │   ├── linkscript.stm32f3.ld
+│   │   │       │   ├── main.c
+│   │   │       │   ├── memcpy.s
+│   │   │       │   ├── memset.s
+│   │   │       │   ├── merge.py
+│   │   │       │   ├── openocd.efm32.cfg
+│   │   │       │   ├── openocd.stm32f0.cfg
+│   │   │       │   ├── openocd.stm32f1.cfg
+│   │   │       │   ├── openocd.stm32f3.cfg
+│   │   │       │   ├── report.py
+│   │   │       │   ├── semihost.c
+│   │   │       │   ├── semihost.h
+│   │   │       │   ├── semihost.s
+│   │   │       │   └── unacl
+│   │   │       │       ├── cortex_m0_mpy121666.s
+│   │   │       │       ├── cortex_m0_reduce25519.s
+│   │   │       │       ├── mul.s
+│   │   │       │       ├── scalarmult.c
+│   │   │       │       └── sqr.s
+│   │   │       ├── bitops.h
+│   │   │       ├── blockwise.c
+│   │   │       ├── blockwise.h
+│   │   │       ├── cbcmac.c
+│   │   │       ├── ccm.c
+│   │   │       ├── cf_config.h
+│   │   │       ├── chacha20.c
+│   │   │       ├── chacha20poly1305.c
+│   │   │       ├── chacha20poly1305.h
+│   │   │       ├── chash.c
+│   │   │       ├── chash.h
+│   │   │       ├── cmac.c
+│   │   │       ├── curve25519.c
+│   │   │       ├── curve25519.donna.c
+│   │   │       ├── curve25519.h
+│   │   │       ├── curve25519.naclref.c
+│   │   │       ├── curve25519.tweetnacl.c
+│   │   │       ├── drbg.c
+│   │   │       ├── drbg.h
+│   │   │       ├── eax.c
+│   │   │       ├── ext
+│   │   │       │   ├── cutest.h
+│   │   │       │   └── handy.h
+│   │   │       ├── gcm.c
+│   │   │       ├── gf128.c
+│   │   │       ├── gf128.h
+│   │   │       ├── hmac.c
+│   │   │       ├── hmac.h
+│   │   │       ├── modes.c
+│   │   │       ├── modes.h
+│   │   │       ├── norx.c
+│   │   │       ├── norx.h
+│   │   │       ├── ocb.c
+│   │   │       ├── pbkdf2.c
+│   │   │       ├── pbkdf2.h
+│   │   │       ├── poly1305.c
+│   │   │       ├── poly1305.h
+│   │   │       ├── poly1305.py
+│   │   │       ├── prp.h
+│   │   │       ├── salsa20.c
+│   │   │       ├── salsa20.h
+│   │   │       ├── sha1.c
+│   │   │       ├── sha1.h
+│   │   │       ├── sha2.h
+│   │   │       ├── sha256.c
+│   │   │       ├── sha3.c
+│   │   │       ├── sha3.h
+│   │   │       ├── sha512.c
+│   │   │       ├── tassert.h
+│   │   │       ├── testaes.c
+│   │   │       ├── testchacha20poly1305.c
+│   │   │       ├── testcurve25519.c
+│   │   │       ├── testdrbg.c
+│   │   │       ├── testmodes.c
+│   │   │       ├── testnorx.c
+│   │   │       ├── testnorx.katdata.inc
+│   │   │       ├── testpoly1305.c
+│   │   │       ├── testsalsa20.c
+│   │   │       ├── testsha.h
+│   │   │       ├── testsha1.c
+│   │   │       ├── testsha2.c
+│   │   │       ├── testsha3.c
+│   │   │       └── testutil.h
+│   │   ├── micro-ecc
+│   │   │   ├── LICENSE.txt
+│   │   │   ├── README.md
+│   │   │   ├── asm_arm.inc
+│   │   │   ├── asm_arm_mult_square.inc
+│   │   │   ├── asm_arm_mult_square_umaal.inc
+│   │   │   ├── asm_avr.inc
+│   │   │   ├── asm_avr_mult_square.inc
+│   │   │   ├── curve-specific.inc
+│   │   │   ├── emk_project.py
+│   │   │   ├── emk_rules.py
+│   │   │   ├── examples
+│   │   │   │   └── ecc_test
+│   │   │   │       └── ecc_test.ino
+│   │   │   ├── library.properties
+│   │   │   ├── platform-specific.inc
+│   │   │   ├── scripts
+│   │   │   │   ├── mult_arm.py
+│   │   │   │   ├── mult_avr.py
+│   │   │   │   ├── mult_avr_extra.py
+│   │   │   │   ├── square_arm.py
+│   │   │   │   └── square_avr.py
+│   │   │   ├── test
+│   │   │   │   ├── emk_rules.py
+│   │   │   │   ├── test_compress.c
+│   │   │   │   ├── test_compute.c
+│   │   │   │   ├── test_ecdh.c
+│   │   │   │   ├── test_ecdsa.c
+│   │   │   │   └── test_ecdsa_deterministic.c.example
+│   │   │   ├── types.h
+│   │   │   ├── uECC.c
+│   │   │   ├── uECC.h
+│   │   │   └── uECC_vli.h
+│   │   ├── salty
+│   │   │   ├── Cargo.toml
+│   │   │   ├── LICENSE-APACHE
+│   │   │   ├── LICENSE-MIT
+│   │   │   ├── Makefile
+│   │   │   ├── README.md
+│   │   │   ├── asm
+│   │   │   │   └── fe25519_add.s
+│   │   │   ├── bin
+│   │   │   │   └── salty-asm.a
+│   │   │   ├── book
+│   │   │   │   ├── book.toml
+│   │   │   │   ├── netlify.toml
+│   │   │   │   └── src
+│   │   │   │       ├── SUMMARY.md
+│   │   │   │       ├── c-api.md
+│   │   │   │       ├── chapter_1.md
+│   │   │   │       ├── overview.md
+│   │   │   │       ├── preface.md
+│   │   │   │       ├── references.md
+│   │   │   │       └── testing.md
+│   │   │   ├── build.rs
+│   │   │   ├── c-api
+│   │   │   │   ├── Cargo.toml
+│   │   │   │   ├── Makefile
+│   │   │   │   ├── README.md
+│   │   │   │   ├── cbindgen.toml
+│   │   │   │   ├── example
+│   │   │   │   │   ├── Makefile
+│   │   │   │   │   ├── example.c
+│   │   │   │   │   ├── musca-b1.ld
+│   │   │   │   │   └── rules.mk
+│   │   │   │   ├── libopencm3
+│   │   │   │   ├── salty.h
+│   │   │   │   ├── salty.hpp
+│   │   │   │   └── src
+│   │   │   │       └── lib.rs
+│   │   │   ├── haase
+│   │   │   │   ├── attributesForCortexM4.inc
+│   │   │   │   ├── bigint.c
+│   │   │   │   ├── bigint.h
+│   │   │   │   ├── cortex_m4_hsalsa20_block.S
+│   │   │   │   ├── cortex_m4_mpy_fe25519.S
+│   │   │   │   ├── cortex_m4_sqr_fe25519.S
+│   │   │   │   ├── crypto_target_config.h
+│   │   │   │   ├── crypto_target_config_cortexM4.h
+│   │   │   │   ├── fe25519.c
+│   │   │   │   ├── fe25519.h
+│   │   │   │   ├── fe25519_invert.c
+│   │   │   │   ├── fe25519_pow2523.c
+│   │   │   │   ├── randombytes.h
+│   │   │   │   ├── sc25519.c
+│   │   │   │   └── sc25519.h
+│   │   │   ├── netlify.toml
+│   │   │   ├── qemu-tests
+│   │   │   │   ├── Cargo.toml
+│   │   │   │   ├── Makefile
+│   │   │   │   ├── README.md
+│   │   │   │   ├── memory.x
+│   │   │   │   ├── qemu.gdb
+│   │   │   │   └── src
+│   │   │   │       └── main.rs
+│   │   │   ├── requirements.txt
+│   │   │   ├── rustfmt.toml
+│   │   │   ├── scripts
+│   │   │   │   ├── assemble.sh
+│   │   │   │   └── format_hexstring_as_u8s.py
+│   │   │   ├── src
+│   │   │   │   ├── constants.rs
+│   │   │   │   ├── curve.rs
+│   │   │   │   ├── field
+│   │   │   │   │   ├── haase.rs
+│   │   │   │   │   ├── tweetnacl.rs
+│   │   │   │   │   └── tweetnacl_raw.rs
+│   │   │   │   ├── field.rs
+│   │   │   │   ├── hash.rs
+│   │   │   │   ├── lib.rs
+│   │   │   │   ├── scalar.rs
+│   │   │   │   ├── scalar29.rs
+│   │   │   │   ├── signature.rs
+│   │   │   │   └── tests.rs
+│   │   │   └── tweetnacl
+│   │   │       ├── tweetnacl.c
+│   │   │       └── tweetnacl.h
+│   │   ├── sha256
+│   │   │   ├── sha256.c
+│   │   │   └── sha256.h
+│   │   └── tiny-AES-c
+│   │       ├── Makefile
+│   │       ├── README.md
+│   │       ├── aes.c
+│   │       ├── aes.h
+│   │       ├── aes.hpp
+│   │       ├── library.json
+│   │       ├── test.c
+│   │       └── unlicense.txt
+│   ├── docs
+│   │   ├── _redirects
+│   │   ├── application-ideas.md
+│   │   ├── bootloader-mode.md
+│   │   ├── building.md
+│   │   ├── code-overview.md
+│   │   ├── contributing.md
+│   │   ├── customization.md
+│   │   ├── documenting.md
+│   │   ├── fido2-impl.md
+│   │   ├── images
+│   │   │   ├── conforms.PNG
+│   │   │   ├── favicon.ico
+│   │   │   ├── logo.svg
+│   │   │   ├── nucleo_board_connection.png
+│   │   │   └── solo_conforms.PNG
+│   │   ├── index.md
+│   │   ├── metadata-statements.md
+│   │   ├── nucleo32-board.md
+│   │   ├── porting.md
+│   │   ├── programming.md
+│   │   ├── repo-readme.md
+│   │   ├── signed-updates.md
+│   │   ├── solo-extras.md
+│   │   ├── tutorial-getting-started.md
+│   │   ├── tutorial-writing-extensions.md
+│   │   └── udev.md
+│   ├── fido2
+│   │   ├── Makefile
+│   │   ├── apdu.c
+│   │   ├── apdu.h
+│   │   ├── cose_key.h
+│   │   ├── crypto.c
+│   │   ├── crypto.h
+│   │   ├── ctap.c
+│   │   ├── ctap.h
+│   │   ├── ctap_errors.h
+│   │   ├── ctap_parse.c
+│   │   ├── ctap_parse.h
+│   │   ├── ctaphid.c
+│   │   ├── ctaphid.h
+│   │   ├── data_migration.c
+│   │   ├── data_migration.h
+│   │   ├── device.c
+│   │   ├── device.h
+│   │   ├── example_app.h
+│   │   ├── extensions
+│   │   │   ├── extensions.c
+│   │   │   ├── extensions.h
+│   │   │   ├── solo.c
+│   │   │   ├── solo.h
+│   │   │   ├── wallet.c
+│   │   │   └── wallet.h
+│   │   ├── log.c
+│   │   ├── log.h
+│   │   ├── storage.h
+│   │   ├── stubs.c
+│   │   ├── test_power.c
+│   │   ├── u2f.c
+│   │   ├── u2f.h
+│   │   ├── util.c
+│   │   ├── util.h
+│   │   ├── version.c
+│   │   ├── version.h
+│   │   └── version.mk
+│   ├── in-docker-build.sh
+│   ├── metadata
+│   │   ├── Solo-FIDO2-CTAP2-Authenticator.json
+│   │   ├── Solo-FIDO2-U2F-Authenticator.json
+│   │   ├── SoloTap-FIDO2-CTAP2-Authenticator.json
+│   │   └── Somu-FIDO2-CTAP2-Authenticator.json
+│   ├── mkdocs.yml
+│   ├── pc
+│   │   ├── app.h
+│   │   ├── device.c
+│   │   └── main.c
+│   ├── runtime.txt
+│   ├── targets
+│   │   └── stm32l432
+│   │       ├── Makefile
+│   │       ├── README.md
+│   │       ├── bootloader
+│   │       │   ├── bootloader.c
+│   │       │   ├── bootloader.h
+│   │       │   ├── main.c
+│   │       │   ├── pubkey_bootloader.c
+│   │       │   └── version_check.c
+│   │       ├── build
+│   │       │   ├── application.mk
+│   │       │   ├── bootloader.mk
+│   │       │   └── common.mk
+│   │       ├── cubeconfig_stm32l442.ioc
+│   │       ├── lib
+│   │       │   ├── stm32_hal_legacy.h
+│   │       │   ├── stm32l4xx_hal.h
+│   │       │   ├── stm32l4xx_hal_conf.h
+│   │       │   ├── stm32l4xx_hal_def.h
+│   │       │   ├── stm32l4xx_hal_pcd.c
+│   │       │   ├── stm32l4xx_hal_pcd.h
+│   │       │   ├── stm32l4xx_hal_pcd_ex.c
+│   │       │   ├── stm32l4xx_hal_pcd_ex.h
+│   │       │   ├── stm32l4xx_hal_tsc.h
+│   │       │   ├── stm32l4xx_ll_bus.h
+│   │       │   ├── stm32l4xx_ll_cortex.h
+│   │       │   ├── stm32l4xx_ll_crs.h
+│   │       │   ├── stm32l4xx_ll_exti.c
+│   │       │   ├── stm32l4xx_ll_exti.h
+│   │       │   ├── stm32l4xx_ll_gpio.c
+│   │       │   ├── stm32l4xx_ll_gpio.h
+│   │       │   ├── stm32l4xx_ll_iwdg.h
+│   │       │   ├── stm32l4xx_ll_pwr.c
+│   │       │   ├── stm32l4xx_ll_pwr.h
+│   │       │   ├── stm32l4xx_ll_rcc.c
+│   │       │   ├── stm32l4xx_ll_rcc.h
+│   │       │   ├── stm32l4xx_ll_rng.c
+│   │       │   ├── stm32l4xx_ll_rng.h
+│   │       │   ├── stm32l4xx_ll_spi.c
+│   │       │   ├── stm32l4xx_ll_spi.h
+│   │       │   ├── stm32l4xx_ll_system.h
+│   │       │   ├── stm32l4xx_ll_tim.c
+│   │       │   ├── stm32l4xx_ll_tim.h
+│   │       │   ├── stm32l4xx_ll_usart.c
+│   │       │   ├── stm32l4xx_ll_usart.h
+│   │       │   ├── stm32l4xx_ll_usb.c
+│   │       │   ├── stm32l4xx_ll_usb.h
+│   │       │   ├── stm32l4xx_ll_utils.c
+│   │       │   ├── stm32l4xx_ll_utils.h
+│   │       │   └── usbd
+│   │       │       ├── usbd_ccid.c
+│   │       │       ├── usbd_ccid.h
+│   │       │       ├── usbd_cdc.c
+│   │       │       ├── usbd_cdc.h
+│   │       │       ├── usbd_cdc_if.c
+│   │       │       ├── usbd_cdc_if.h
+│   │       │       ├── usbd_composite.c
+│   │       │       ├── usbd_composite.h
+│   │       │       ├── usbd_conf.c
+│   │       │       ├── usbd_conf.h
+│   │       │       ├── usbd_core.c
+│   │       │       ├── usbd_core.h
+│   │       │       ├── usbd_ctlreq.c
+│   │       │       ├── usbd_ctlreq.h
+│   │       │       ├── usbd_def.h
+│   │       │       ├── usbd_desc.c
+│   │       │       ├── usbd_desc.h
+│   │       │       ├── usbd_hid.c
+│   │       │       ├── usbd_hid.h
+│   │       │       ├── usbd_ioreq.c
+│   │       │       └── usbd_ioreq.h
+│   │       ├── linker
+│   │       │   ├── bootloader_stm32l4xx.ld
+│   │       │   ├── bootloader_stm32l4xx_extra.ld
+│   │       │   ├── stm32l4xx.ld
+│   │       │   └── stm32l4xx_extra.ld
+│   │       ├── requirements.txt
+│   │       └── src
+│   │           ├── ams.c
+│   │           ├── ams.h
+│   │           ├── app.h
+│   │           ├── attestation.c
+│   │           ├── cmsis
+│   │           │   ├── arm_common_tables.h
+│   │           │   ├── arm_const_structs.h
+│   │           │   ├── arm_math.h
+│   │           │   ├── cmsis_armcc.h
+│   │           │   ├── cmsis_armcc_V6.h
+│   │           │   ├── cmsis_gcc.h
+│   │           │   ├── core_cm0.h
+│   │           │   ├── core_cm0plus.h
+│   │           │   ├── core_cm3.h
+│   │           │   ├── core_cm4.h
+│   │           │   ├── core_cm7.h
+│   │           │   ├── core_cmFunc.h
+│   │           │   ├── core_cmInstr.h
+│   │           │   ├── core_cmSimd.h
+│   │           │   ├── core_sc000.h
+│   │           │   ├── core_sc300.h
+│   │           │   ├── stm32l432xx.h
+│   │           │   ├── stm32l442xx.h
+│   │           │   ├── stm32l4xx.h
+│   │           │   └── system_stm32l4xx.h
+│   │           ├── device.c
+│   │           ├── fifo.c
+│   │           ├── fifo.h
+│   │           ├── flash.c
+│   │           ├── flash.h
+│   │           ├── init.c
+│   │           ├── init.h
+│   │           ├── led.c
+│   │           ├── led.h
+│   │           ├── main.c
+│   │           ├── memory_layout.h
+│   │           ├── nfc.c
+│   │           ├── nfc.h
+│   │           ├── redirect.c
+│   │           ├── rng.c
+│   │           ├── rng.h
+│   │           ├── sense.c
+│   │           ├── sense.h
+│   │           ├── solo.h
+│   │           ├── startup_stm32l432xx.s
+│   │           └── system_stm32l4xx.c
+│   ├── tinycbor
+│   │   ├── Doxyfile
+│   │   ├── LICENSE
+│   │   ├── Makefile
+│   │   ├── Makefile.configure
+│   │   ├── Makefile.nmake
+│   │   ├── README
+│   │   ├── TODO
+│   │   ├── VERSION
+│   │   ├── examples
+│   │   │   ├── examples.pro
+│   │   │   ├── simplereader.c
+│   │   │   └── simplereader.pro
+│   │   ├── scripts
+│   │   │   ├── maketag.pl
+│   │   │   └── update-docs.sh
+│   │   ├── src
+│   │   │   ├── cbor.dox
+│   │   │   ├── cbor.h
+│   │   │   ├── cborencoder.c
+│   │   │   ├── cborencoder_close_container_checked.c
+│   │   │   ├── cborerrorstrings.c
+│   │   │   ├── cborinternal_p.h
+│   │   │   ├── cborjson.h
+│   │   │   ├── cborparser.c
+│   │   │   ├── cborparser_dup_string.c
+│   │   │   ├── cborpretty.c
+│   │   │   ├── cborpretty_stdio.c
+│   │   │   ├── cbortojson.c
+│   │   │   ├── cborvalidation.c
+│   │   │   ├── compilersupport_p.h
+│   │   │   ├── open_memstream.c
+│   │   │   ├── parsetags.pl
+│   │   │   ├── src.pri
+│   │   │   ├── tags.txt
+│   │   │   ├── tinycbor-version.h
+│   │   │   ├── tinycbor.pro
+│   │   │   └── utf8_p.h
+│   │   ├── tests
+│   │   │   ├── c90
+│   │   │   │   ├── c90.pro
+│   │   │   │   └── tst_c90.c
+│   │   │   ├── cpp
+│   │   │   │   ├── cpp.pro
+│   │   │   │   └── tst_cpp.cpp
+│   │   │   ├── encoder
+│   │   │   │   ├── encoder.pro
+│   │   │   │   └── tst_encoder.cpp
+│   │   │   ├── parser
+│   │   │   │   ├── parser.pro
+│   │   │   │   └── tst_parser.cpp
+│   │   │   ├── tests.pro
+│   │   │   └── tojson
+│   │   │       ├── tojson.pro
+│   │   │       └── tst_tojson.cpp
+│   │   ├── tinycbor.pc.in
+│   │   └── tools
+│   │       ├── Makefile
+│   │       ├── cbordump
+│   │       │   ├── cbordump.c
+│   │       │   └── cbordump.pro
+│   │       └── json2cbor
+│   │           ├── json2cbor.c
+│   │           └── json2cbor.pro
+│   ├── tools
+│   │   ├── convert_log_to_c.py
+│   │   ├── firmware.json
+│   │   ├── gadgetfs
+│   │   │   └── Makefile
+│   │   ├── gencert
+│   │   │   ├── attest
+│   │   │   ├── ca_sign.sh
+│   │   │   ├── cbytes.py
+│   │   │   ├── dump_pem.py
+│   │   │   ├── gen_intermediate.sh
+│   │   │   ├── genca.sh
+│   │   │   ├── print_x_y.py
+│   │   │   ├── v3.ext
+│   │   │   └── verify_certs.sh
+│   │   ├── http2udb.py
+│   │   ├── nfcmon.py
+│   │   ├── requirements.txt
+│   │   └── test_sw_token.sh
+│   └── udev
+│       ├── 70-solokeys-access.rules
+│       ├── 70-solokeys-legacy-access.rules
+│       ├── 71-solokeys-symlinks.rules
+│       ├── Makefile
+│       └── README.md
+├── solokeys_folder_structure.txt
+├── test1
+├── test2
+├── test3
+├── test4
+├── test5
+└── tinycbor
+    ├── Doxyfile
+    ├── LICENSE
+    ├── Makefile
+    ├── Makefile.configure
+    ├── Makefile.nmake
+    ├── README
+    ├── TODO
+    ├── VERSION
+    ├── examples
+    │   ├── examples.pro
+    │   ├── simplereader.c
+    │   └── simplereader.pro
+    ├── scripts
+    │   ├── maketag.pl
+    │   └── update-docs.sh
+    ├── src
+    │   ├── cbor.dox
+    │   ├── cbor.h
+    │   ├── cborencoder.c
+    │   ├── cborencoder.o
+    │   ├── cborencoder_close_container_checked.c
+    │   ├── cborencoder_close_container_checked.o
+    │   ├── cborerrorstrings.c
+    │   ├── cborerrorstrings.o
+    │   ├── cborinternal_p.h
+    │   ├── cborjson.h
+    │   ├── cborparser.c
+    │   ├── cborparser_dup_string.c
+    │   ├── cborpretty.c
+    │   ├── cborpretty_stdio.c
+    │   ├── cbortojson.c
+    │   ├── cborvalidation.c
+    │   ├── compilersupport_p.h
+    │   ├── open_memstream.c
+    │   ├── parsetags.pl
+    │   ├── src.pri
+    │   ├── tags.txt
+    │   ├── tinycbor-version.h
+    │   ├── tinycbor.pro
+    │   └── utf8_p.h
+    ├── tests
+    │   ├── c90
+    │   │   ├── c90.pro
+    │   │   └── tst_c90.c
+    │   ├── cpp
+    │   │   ├── cpp.pro
+    │   │   └── tst_cpp.cpp
+    │   ├── encoder
+    │   │   ├── encoder.pro
+    │   │   └── tst_encoder.cpp
+    │   ├── parser
+    │   │   ├── parser.pro
+    │   │   └── tst_parser.cpp
+    │   ├── tests.pro
+    │   └── tojson
+    │       ├── tojson.pro
+    │       └── tst_tojson.cpp
+    ├── tinycbor.pc.in
+    └── tools
+        ├── Makefile
+        ├── cbordump
+        │   ├── cbordump.c
+        │   └── cbordump.pro
+        └── json2cbor
+            ├── json2cbor.c
+            └── json2cbor.pro
+
+92 directories, 601 files

@@ -1,0 +1,24 @@
+---- CTAP_RESPONSE Matches (5 in 3 files) ----
+Mycbor.c: uint8_t test_ctap_request(uint8_t * pkt_raw, int length, CTAP_RESPONSE * resp)
+Mycbor.c:    //cbor ctap.c uint8_t ctap_request(uint8_t * pkt_raw, int length, CTAP_RESPONSE * resp)
+Mycbor.c:    CTAP_RESPONSE ctap_resp;
+Mycbor.h:} CTAP_RESPONSE;
+Mycrypto.h:} CTAP_RESPONSE;
+---- dump_hex1 Matches (9 in 3 files) ----
+Mycbor.c:    printf("cbor req: "); dump_hex1(TAG_DUMP, pkt_raw, length);
+Mycbor.c://            dump_hex1(TAG_DUMP, buf, resp->length);
+Mycbor.c://                dump_hex1(TAG_DUMP,buf, resp->length);
+Mycbor.c://            dump_hex1(TAG_DUMP, buf, resp->length);
+Mycbor.c://            dump_hex1(TAG_DUMP, buf, resp->length);
+Mycbor.c://                dump_hex1(TAG_DUMP, buf, resp->length);
+Mycbor.c://            dump_hex1(TAG_DUMP,buf, resp->length);
+Mycbor.h://#define dump_hex1(tag,data,len) LOG_HEX(tag,data,len)
+Mycrypto.c:	dump_hex1(TAG_MC, sigder, sigder_sz);
+---- uECC_secp256r1 Matches (7 in 7 files) ----
+Curve-specific.inc (crypto\ecc):uECC_Curve uECC_secp256r1(void) { return &curve_secp256r1; }
+Mycrypto.c:    curves[num_curves++] = uECC_secp256r1();
+Test_compress.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_compute.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_ecdh.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_ecdsa.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+uECC.h (crypto\ecc):uECC_Curve uECC_secp256r1(void);
