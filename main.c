@@ -5,8 +5,10 @@
 
 
 //my code
-#include "mycrypto.h"
+#include "./tinycbor/src/cbor.h"
 #include "mycbor.h"
+
+#include "mycrypto.h"
 
 /*
  * main
@@ -26,11 +28,12 @@ int main(int argc, char *argv[])
     //test_encrypt_cbc();
     //test_decrypt_cbc();
     //test_ecc_256();
+    //test_myecdsa();
 
     //mycbor.c
-    test_cbor(argc, argv);
+    //test_cbor(argc, argv);
 
-
+    myctap();
 
     return 0;
 }

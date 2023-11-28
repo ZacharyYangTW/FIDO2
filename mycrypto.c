@@ -3,12 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mycrypto.h"
 
 //external library
 #include "./crypto/sha256/sha256.h"
 #include "./crypto/tiny-AES-c/aes.h"
 #include "./crypto/ecc/uECC.h"
+
+//cbor
+#include "./tinycbor/src/cbor.h"
+#include "mycbor.h"
+
+#include "mycrypto.h"
 
 /*
  * SHA256
@@ -393,3 +398,324 @@ Test secp256k1_tests[] = {
 
 }
 
+void dump_hex_mycrypto(uint8_t * buf, int size)
+{
+    while(size--)
+    {
+        printf("%02x ", *buf++);
+    }
+    printf("\n");
+
+}
+
+int test_myecdsa(void)
+{
+    int i, c;
+    uint8_t private[32] = {0};
+    uint8_t public[64] = {0};
+    uint8_t hash[32] = {0};
+    uint8_t sig[64] = {0};
+
+    const struct uECC_Curve_t * curves[5];
+    int num_curves = 0;
+
+#if uECC_SUPPORTS_secp256r1
+    curves[num_curves++] = uECC_secp256r1();
+#endif
+    
+    printf("Testing 256 signatures\n");
+    printf("num_curves=%d\n", num_curves);
+
+    for (c = 0; c < num_curves; ++c) {
+        for (i = 0; i < 256; ++i) {
+            printf(".");
+            fflush(stdout);
+
+            if (!uECC_make_key(public, private, curves[c])) {
+                printf("uECC_make_key() failed\n");
+                return 1;
+            }
+            memcpy(hash, public, sizeof(hash));
+
+    printf("\ni=%d, private:\n", i);
+    //dump_hex_mycrypto(public, 32);//reter debug
+			
+    printf("\ni=%d, public:\n", i);
+    //dump_hex_mycrypto(public, 64);//reter debug
+
+            if (!uECC_sign(private, hash, sizeof(hash), sig, curves[c])) {
+                printf("uECC_sign() failed\n");
+                return 1;
+            }
+			
+    printf("\ni=%d, sig:\n", i);
+    //dump_hex_mycrypto(sig, 64);//reter debug
+
+            if (!uECC_verify(public, hash, sizeof(hash), sig, curves[c])) {
+                printf("uECC_verify() failed\n");
+                return 1;
+            }
+        }
+        printf("\n");
+    }
+    
+}
+
+//-------------------------------- test for ctap functions ------------------------------------------
+static uint8_t * _signing_key = NULL;
+static int _key_len = 0;
+
+
+uint8_t * device_get_attestation_key(){
+    static uint8_t attestation_key[] =
+        "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
+        "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
+        "\xb7\x2e\x5f\xe7\x5d\x30";
+	
+    return attestation_key;
+}
+
+void crypto_ecc256_load_attestation_key(void)
+{
+    _signing_key = device_get_attestation_key();
+    printf("\n_signing_key:\n");
+    dump_hex_mycrypto(_signing_key, 32);//reter debug
+    _key_len = 32;
+}
+
+void crypto_ecc256_sign(uint8_t * data, int len, uint8_t * sig)
+{
+
+    printf("\ncrypto_ecc256_sign _signing_key:\n");
+    dump_hex_mycrypto(_signing_key, 32);//reter debug
+
+    printf("\ncrypto_ecc256_sign data:\n");
+    dump_hex_mycrypto(data, 32);//reter debug
+
+    printf("\ncrypto_ecc256_sign len: %d\n", len);
+
+    printf("\ncrypto_ecc256_sign sig:\n");
+    dump_hex_mycrypto(sig, 32);//reter debug
+
+
+    if ( uECC_sign(_signing_key, data, len, sig, _es256_curve) == 0)
+    {
+        printf("error, uECC failed\n");
+        exit(1);
+    }
+    printf("\ncrypto_ecc256_sign sig_after:\n");
+    dump_hex_mycrypto(sig, 32);//reter debug
+
+
+}
+
+/**
+ *
+ * @param in_sigbuf IN location to deposit signature (must be 64 bytes)
+ * @param out_sigder OUT location to deposit der signature (must be 72 bytes)
+ * @return length of der signature
+ * // FIXME add tests for maximum and minimum length of the input and output
+ */
+int ctap_encode_der_sig(const uint8_t * const in_sigbuf, uint8_t * const out_sigder)
+{
+    // Need to caress into dumb der format ..
+    uint8_t i;
+    uint8_t lead_s = 0;  // leading zeros
+    uint8_t lead_r = 0;
+    for (i=0; i < 32; i++)
+    {
+        if (in_sigbuf[i] == 0)
+        {
+            lead_r++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    for (i=0; i < 32; i++)
+    {
+        if (in_sigbuf[i+32] == 0)
+        {
+            lead_s++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    int8_t pad_s = ((in_sigbuf[32 + lead_s] & 0x80) == 0x80);
+    int8_t pad_r = ((in_sigbuf[0 + lead_r] & 0x80) == 0x80);
+
+    memset(out_sigder, 0, 72);
+    out_sigder[0] = 0x30;
+    out_sigder[1] = 0x44 + pad_s + pad_r - lead_s - lead_r;
+
+    // R ingredient
+    out_sigder[2] = 0x02;
+    out_sigder[3 + pad_r] = 0;
+    out_sigder[3] = 0x20 + pad_r - lead_r;
+    memmove(out_sigder + 4 + pad_r, in_sigbuf + lead_r, 32u - lead_r);
+
+    // S ingredient
+    out_sigder[4 + 32 + pad_r - lead_r] = 0x02;
+    out_sigder[5 + 32 + pad_r + pad_s - lead_r] = 0;
+    out_sigder[5 + 32 + pad_r - lead_r] = 0x20 + pad_s - lead_s;
+    memmove(out_sigder + 6 + 32 + pad_r + pad_s - lead_r, in_sigbuf + 32u + lead_s, 32u - lead_s);
+
+    return 0x46 + pad_s + pad_r - lead_r - lead_s;
+}
+
+
+// require load_key prior to this
+// @data data to hash before signature, MUST have room to append clientDataHash for ED25519
+// @clientDataHash for signature
+// @tmp buffer for hash.  (can be same as data if data >= 32 bytes)
+// @sigbuf OUT location to deposit signature (must be 64 bytes)
+// @sigder OUT location to deposit der signature (must be 72 bytes)
+// @return length of der signature
+int ctap_calculate_signature(uint8_t * data, int datalen, uint8_t * clientDataHash, uint8_t * hashbuf, uint8_t * sigbuf, uint8_t * sigder, int32_t alg)
+{
+    // calculate attestation sig
+    if (alg == COSE_ALG_EDDSA)
+    {
+        //reter debugcrypto_ed25519_sign(data, datalen, clientDataHash, CLIENT_DATA_HASH_SIZE, sigder); // not DER, just plain binary!
+        return 64;
+    }
+    else
+    {
+    printf("\nsha256 datalen=%u:\n", datalen);
+    printf("\nsha256 clientDataHash=%lu:\n", sizeof(clientDataHash));
+    printf("\nsha256 CLIENT_DATA_HASH_SIZE=%u:\n", CLIENT_DATA_HASH_SIZE);
+
+        crypto_sha256_init();
+        crypto_sha256_update(data, datalen);
+        crypto_sha256_update(clientDataHash, CLIENT_DATA_HASH_SIZE);
+        crypto_sha256_final(hashbuf);
+		
+    printf("\nsha256 hashbuf:\n");
+    dump_hex_mycrypto(hashbuf, 32);//reter debug
+
+        crypto_ecc256_sign(hashbuf, 32, sigbuf);
+        return ctap_encode_der_sig(sigbuf,sigder);
+    }
+}
+
+static uint8_t _attestation_cert_der[] =
+"\x30\x82\x01\xfb\x30\x82\x01\xa1\xa0\x03\x02\x01\x02\x02\x01\x00\x30\x0a\x06\x08"
+"\x2a\x86\x48\xce\x3d\x04\x03\x02\x30\x2c\x31\x0b\x30\x09\x06\x03\x55\x04\x06\x13"
+"\x02\x55\x53\x31\x0b\x30\x09\x06\x03\x55\x04\x08\x0c\x02\x4d\x44\x31\x10\x30\x0e"
+"\x06\x03\x55\x04\x0a\x0c\x07\x54\x45\x53\x54\x20\x43\x41\x30\x20\x17\x0d\x31\x38"
+"\x30\x35\x31\x30\x30\x33\x30\x36\x32\x30\x5a\x18\x0f\x32\x30\x36\x38\x30\x34\x32"
+"\x37\x30\x33\x30\x36\x32\x30\x5a\x30\x7c\x31\x0b\x30\x09\x06\x03\x55\x04\x06\x13"
+"\x02\x55\x53\x31\x0b\x30\x09\x06\x03\x55\x04\x08\x0c\x02\x4d\x44\x31\x0f\x30\x0d"
+"\x06\x03\x55\x04\x07\x0c\x06\x4c\x61\x75\x72\x65\x6c\x31\x15\x30\x13\x06\x03\x55"
+"\x04\x0a\x0c\x0c\x54\x45\x53\x54\x20\x43\x4f\x4d\x50\x41\x4e\x59\x31\x22\x30\x20"
+"\x06\x03\x55\x04\x0b\x0c\x19\x41\x75\x74\x68\x65\x6e\x74\x69\x63\x61\x74\x6f\x72"
+"\x20\x41\x74\x74\x65\x73\x74\x61\x74\x69\x6f\x6e\x31\x14\x30\x12\x06\x03\x55\x04"
+"\x03\x0c\x0b\x63\x6f\x6e\x6f\x72\x70\x70\x2e\x63\x6f\x6d\x30\x59\x30\x13\x06\x07"
+"\x2a\x86\x48\xce\x3d\x02\x01\x06\x08\x2a\x86\x48\xce\x3d\x03\x01\x07\x03\x42\x00"
+"\x04\x45\xa9\x02\xc1\x2e\x9c\x0a\x33\xfa\x3e\x84\x50\x4a\xb8\x02\xdc\x4d\xb9\xaf"
+"\x15\xb1\xb6\x3a\xea\x8d\x3f\x03\x03\x55\x65\x7d\x70\x3f\xb4\x02\xa4\x97\xf4\x83"
+"\xb8\xa6\xf9\x3c\xd0\x18\xad\x92\x0c\xb7\x8a\x5a\x3e\x14\x48\x92\xef\x08\xf8\xca"
+"\xea\xfb\x32\xab\x20\xa3\x62\x30\x60\x30\x46\x06\x03\x55\x1d\x23\x04\x3f\x30\x3d"
+"\xa1\x30\xa4\x2e\x30\x2c\x31\x0b\x30\x09\x06\x03\x55\x04\x06\x13\x02\x55\x53\x31"
+"\x0b\x30\x09\x06\x03\x55\x04\x08\x0c\x02\x4d\x44\x31\x10\x30\x0e\x06\x03\x55\x04"
+"\x0a\x0c\x07\x54\x45\x53\x54\x20\x43\x41\x82\x09\x00\xf7\xc9\xec\x89\xf2\x63\x94"
+"\xd9\x30\x09\x06\x03\x55\x1d\x13\x04\x02\x30\x00\x30\x0b\x06\x03\x55\x1d\x0f\x04"
+"\x04\x03\x02\x04\xf0\x30\x0a\x06\x08\x2a\x86\x48\xce\x3d\x04\x03\x02\x03\x48\x00"
+"\x30\x45\x02\x20\x18\x38\xb0\x45\x03\x69\xaa\xa7\xb7\x38\x62\x01\xaf\x24\x97\x5e"
+"\x7e\x74\x64\x1b\xa3\x7b\xf7\xe6\xd3\xaf\x79\x28\xdb\xdc\xa5\x88\x02\x21\x00\xcd"
+"\x06\xf1\xe3\xab\x16\x21\x8e\xd8\xc0\x14\xaf\x09\x4f\x5b\x73\xef\x5e\x9e\x4b\xe7"
+"\x35\xeb\xdd\x9b\x6d\x8f\x7d\xf3\xc4\x3a\xd7";
+
+
+uint16_t device_attestation_cert_der_get_size(){
+    return sizeof(_attestation_cert_der)-1;
+}
+
+void device_attestation_read_cert_der(uint8_t * dst){
+    memmove(dst, _attestation_cert_der, device_attestation_cert_der_get_size());
+}
+
+int ctap_generate_rng(uint8_t * dst, size_t num)
+{
+    int ret;
+    FILE * urand = fopen("/dev/urandom","r");
+    if (urand == NULL)
+    {
+        perror("fopen");
+        exit(1);
+    }
+    if (fread(dst, 1, num, urand) != num)
+    {
+        perror("fread");
+    }
+
+    fclose(urand);
+
+    return 1;
+}
+
+void crypto_ecc256_init(void)
+{
+    uECC_set_rng((uECC_RNG_Function)ctap_generate_rng);
+    _es256_curve = uECC_secp256r1();
+}
+
+
+void myctap()
+{
+//refer to ctap_make_credential in ctap.c
+    CTAP_makeCredential MC;
+
+   
+    uint8_t auth_data_buf[310];
+    uint8_t * sigbuf = auth_data_buf + 32;
+    uint8_t * sigder = auth_data_buf + 32 + 64;
+    uint32_t auth_data_sz = sizeof(auth_data_buf);
+
+//must initial
+	crypto_ecc256_init();;
+
+//fake data
+	*auth_data_buf='\0';//reter debug
+	*MC.clientDataHash='\0';//reter debug
+
+    printf("\nhi, Zach myctap\n");
+    crypto_ecc256_load_attestation_key();
+    int sigder_sz = ctap_calculate_signature(auth_data_buf, auth_data_sz, MC.clientDataHash, auth_data_buf, sigbuf, sigder, COSE_ALG_ES256);
+
+    printf("\nsig: \n"); 
+    dump_hex_mycrypto(sigbuf, 32);
+
+    printf("\nder sig [%d]: \n", sigder_sz); 
+    dump_hex_mycrypto(sigder, sigder_sz);
+
+    uint8_t cert[1024];
+    uint16_t cert_size = device_attestation_cert_der_get_size();
+    printf("\ncert_size=%d\n", cert_size);
+
+    device_attestation_read_cert_der(cert);
+    dump_hex_mycrypto(cert, cert_size);//reter debug
+
+    static uint8_t attestation_key[] =
+        "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
+        "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
+        "\xb7\x2e\x5f\xe7\x5d\x30";
+
+//write key to file
+/*
+    FILE *fptr;
+    int i;
+    fptr = fopen("_attestation_cert_der.der","w");
+
+    for(i=0;i<sizeof(_attestation_cert_der)-1;i++)
+       fprintf(fptr, "%c", _attestation_cert_der[i]);
+
+    fclose(fptr);
+*/
+
+}

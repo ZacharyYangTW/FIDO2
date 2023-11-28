@@ -3,7 +3,7 @@ exe:=main
 
 src = main.c
 src += ./mycrypto.c
-src += ./mycbor.c
+//src += ./mycbor.c
 src += ./cJSON.c
 
 # Crypto libs
@@ -12,9 +12,9 @@ src += ./crypto/tiny-AES-c/aes.c
 src += ./crypto/ecc/uECC.c
 
 # CBOR libs
-src += ./tinycbor/src/cborencoder.c
-src += ./tinycbor/src/cborencoder_close_container_checked.c
-src += ./tinycbor/src/cborerrorstrings.c
+//src += ./tinycbor/src/cborencoder.c
+//src += ./tinycbor/src/cborencoder_close_container_checked.c
+//src += ./tinycbor/src/cborerrorstrings.c
 
 obj = $(src:.c=.o)
 

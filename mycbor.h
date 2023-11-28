@@ -38,24 +38,8 @@ typedef enum
 #define CTAP_RESPONSE_BUFFER_SIZE   4096
 
 static uint8_t ctap_buffer[CTAPHID_BUFFER_SIZE];
-typedef struct
-{
-    uint8_t data[CTAP_RESPONSE_BUFFER_SIZE];
-    uint16_t data_size;
-    uint16_t length;
-} CTAP_RESPONSE;
+;
 
-#define CTAP_MAKE_CREDENTIAL        0x01
-#define CTAP_GET_ASSERTION          0x02
-#define CTAP_CANCEL                 0x03
-#define CTAP_GET_INFO               0x04
-#define CTAP_CLIENT_PIN             0x06
-#define CTAP_RESET                  0x07
-#define GET_NEXT_ASSERTION          0x08
-#define CTAP_CBOR_CRED_MGMT         0x0A
-#define CTAP_VENDOR_FIRST           0x40
-#define CTAP_CBOR_CRED_MGMT_PRE     0x41
-#define CTAP_VENDOR_LAST            0xBF
 
 #define CTAP1_ERR_SUCCESS                   0x00
 #define CTAP1_ERR_INVALID_COMMAND           0x01
