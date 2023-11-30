@@ -1,0 +1,41 @@
+Certificate:
+    Data:
+        Version: 1 (0x0)
+        Serial Number:
+            c4:47:63:92:8f:f4:be:8c
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: C = US, ST = Maryland, O = Solo Keys, OU = Root CA, CN = solokeys.com, emailAddress = hello@solokeys.com
+        Validity
+            Not Before: Nov 11 12:51:42 2018 GMT
+            Not After : Oct 29 12:51:42 2068 GMT
+        Subject: C = US, ST = Maryland, O = Solo Keys, OU = Root CA, CN = solokeys.com, emailAddress = hello@solokeys.com
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:58:70:0d:d0:20:89:55:97:4c:b3:4a:24:b5:9e:
+                    66:f7:7b:b1:98:1d:62:ca:af:04:2d:12:ed:a9:51:
+                    4b:48:e8:87:40:46:9b:e7:aa:91:4c:1f:d0:ce:ba:
+                    46:01:8f:be:63:69:b0:fa:f4:6e:40:c3:61:06:25:
+                    34:2b:3c:23:06
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+    Signature Algorithm: ecdsa-with-SHA256
+    Signature Value:
+        30:45:02:21:00:cf:d4:a5:ac:05:c8:94:4b:bc:ee:fa:da:e7:
+        8a:c8:08:fb:3e:e1:bd:2a:86:9d:cf:77:37:13:83:ba:ef:9c:
+        fd:02:20:68:f1:ce:5b:5e:41:0c:7e:8d:01:9d:ee:bc:12:66:
+        e1:39:45:65:0f:57:28:18:85:4b:2d:40:ef:73:35:43:ac
+-----BEGIN CERTIFICATE-----
+MIIB9DCCAZoCCQDER2OSj/S+jDAKBggqhkjOPQQDAjCBgDELMAkGA1UEBhMCVVMx
+ETAPBgNVBAgMCE1hcnlsYW5kMRIwEAYDVQQKDAlTb2xvIEtleXMxEDAOBgNVBAsM
+B1Jvb3QgQ0ExFTATBgNVBAMMDHNvbG9rZXlzLmNvbTEhMB8GCSqGSIb3DQEJARYS
+aGVsbG9Ac29sb2tleXMuY29tMCAXDTE4MTExMTEyNTE0MloYDzIwNjgxMDI5MTI1
+MTQyWjCBgDELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE1hcnlsYW5kMRIwEAYDVQQK
+DAlTb2xvIEtleXMxEDAOBgNVBAsMB1Jvb3QgQ0ExFTATBgNVBAMMDHNvbG9rZXlz
+LmNvbTEhMB8GCSqGSIb3DQEJARYSaGVsbG9Ac29sb2tleXMuY29tMFkwEwYHKoZI
+zj0CAQYIKoZIzj0DAQcDQgAEWHAN0CCJVZdMs0oktZ5m93uxmB1iyq8ELRLtqVFL
+SOiHQEab56qRTB/QzrpGAY++Y2mw+vRuQMNhBiU0KzwjBjAKBggqhkjOPQQDAgNI
+ADBFAiEAz9SlrAXIlEu87vra54rICPs+4b0qhp3PdzcTg7rvnP0CIGjxzlteQQx+
+jQGd7rwSZuE5RWUPVygYhUstQO9zNUOs
+-----END CERTIFICATE-----

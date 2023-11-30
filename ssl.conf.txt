@@ -1,0 +1,14 @@
+[req]
+prompt = no
+default_md = sha256
+default_bits = 2048
+distinguished_name = dn
+
+[dn]
+C = US
+ST = Maryland
+O = Solo Keys
+OU = Root CA
+emailAddress = hello@solokeys.com
+CN = solokeys.com
+

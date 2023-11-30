@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
     //test_ecc_256();
     //test_myecdsa();
 
+	test_myecc256();
+
     //mycbor.c
     //test_cbor(argc, argv);
 

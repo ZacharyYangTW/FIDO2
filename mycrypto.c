@@ -315,14 +315,29 @@ int run(Test* tests, int num_tests, uECC_Curve curve) {
     printf("private_key_size %d\n", private_key_size);
     printf("public_key_size %d\n", public_key_size);
 
+
+
+
     for (i = 0; i < num_tests; ++i) {
+    printf("\ni=%d, tests[i].k=%s:\n", i, tests[i].k);
+    printf("\ni=%d, tests[i].Q=%s:\n", i, tests[i].Q);
+
         strtobytes(tests[i].k, private, private_key_size);
         result = uECC_compute_public_key(private, public, curve);
         if (result != tests[i].success) {
             all_success = 0;
             printf("  Got unexpected result from test %d: %d\n", i, result);
         }
-        if (result) {
+//    printf("\ni=%d, private:\n", i);
+//    dump_hex_mycrypto(private, private_key_size);
+
+//    printf("\ni=%d, public(Calculated):\n", i);
+//    dump_hex_mycrypto(public, public_key_size);
+
+    printf("\nresult: %d\n", result);
+
+        //if (result) {
+        if (1) {
             strtobytes(tests[i].Q, expected, public_key_size);
             if (memcmp(public, expected, public_key_size) != 0) {
                 all_success = 0;
@@ -340,7 +355,53 @@ int run(Test* tests, int num_tests, uECC_Curve curve) {
 
 void test_ecc_256(void)
 {
-
+Test secp256r1_tests[] = {
+    {
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        0
+    },
+    {
+        "0000000000000000000000000000000000000000000000000000000000000001",
+        "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5",
+        0
+    },
+    {
+        "0000000000000000000000000000000000000000000000000000000000000002",
+        "7CF27B188D034F7E8A52380304B51AC3C08969E277F21B35A60B48FC4766997807775510DB8ED040293D9AC69F7430DBBA7DADE63CE982299E04B79D227873D1",
+        1
+    },
+    {
+        "0000000000000000000000000000000000000000000000000000000000000003",
+        "5ECBE4D1A6330A44C8F7EF951D4BF165E6C6B721EFADA985FB41661BC6E7FD6C8734640C4998FF7E374B06CE1A64A2ECD82AB036384FB83D9A79B127A27D5032",
+        1
+    },
+    {   /* n - 4 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254D",
+        "E2534A3532D08FBBA02DDE659EE62BD0031FE2DB785596EF509302446B0308521F0EA8A4B39CC339E62011A02579D289B103693D0CF11FFAA3BD3DC0E7B12739",
+        1
+    },
+    {   /* n - 3 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254E",
+        "5ECBE4D1A6330A44C8F7EF951D4BF165E6C6B721EFADA985FB41661BC6E7FD6C78CB9BF2B6670082C8B4F931E59B5D1327D54FCAC7B047C265864ED85D82AFCD",
+        1
+    },
+    {   /* n - 2 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254F",
+        "7CF27B188D034F7E8A52380304B51AC3C08969E277F21B35A60B48FC47669978F888AAEE24712FC0D6C26539608BCF244582521AC3167DD661FB4862DD878C2E",
+        0
+    },
+    {   /* n - 1 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632550",
+        "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296B01CBD1C01E58065711814B583F061E9D431CCA994CEA1313449BF97C840AE0A",
+        0
+    },
+    {   /* n */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551",
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        0
+    },
+};
 Test secp256k1_tests[] = {
     {
         "0000000000000000000000000000000000000000000000000000000000000000",
@@ -388,9 +449,16 @@ Test secp256k1_tests[] = {
         0
     },
 };
-
+/*
     printf("secp256k1:\n"); \
     if (run(secp256k1_tests, sizeof(secp256k1_tests) / sizeof(secp256k1_tests[0]), uECC_secp256k1()) ) { \
+        printf("  All passed\n"); \
+    } else { \
+        printf("  Failed\n"); \
+    }
+*/
+    printf("secp256r1:\n"); \
+    if (run(secp256r1_tests, sizeof(secp256r1_tests) / sizeof(secp256r1_tests[0]), uECC_secp256r1()) ) { \
         printf("  All passed\n"); \
     } else { \
         printf("  Failed\n"); \
@@ -459,6 +527,108 @@ int test_myecdsa(void)
         printf("\n");
     }
     
+}
+
+void test_myecc256()
+{
+    uint8_t private[32] = {0};
+    uint8_t public[64] = {0};
+    uint8_t expected[64] = {0};
+    int result;
+    int i;
+    int private_key_size;
+    int public_key_size;
+    int all_success = 1;
+
+    printf("test_myecc256\n");
+
+
+Test secp256r1_tests[] = {
+    {
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        0
+    },
+    {
+        "0000000000000000000000000000000000000000000000000000000000000001",
+        "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5",
+        0
+    },
+    {
+        "0000000000000000000000000000000000000000000000000000000000000002",
+        "7CF27B188D034F7E8A52380304B51AC3C08969E277F21B35A60B48FC4766997807775510DB8ED040293D9AC69F7430DBBA7DADE63CE982299E04B79D227873D1",
+        1
+    },
+    {
+        "0000000000000000000000000000000000000000000000000000000000000003",
+        "5ECBE4D1A6330A44C8F7EF951D4BF165E6C6B721EFADA985FB41661BC6E7FD6C8734640C4998FF7E374B06CE1A64A2ECD82AB036384FB83D9A79B127A27D5032",
+        1
+    },
+    {   /* n - 4 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254D",
+        "E2534A3532D08FBBA02DDE659EE62BD0031FE2DB785596EF509302446B0308521F0EA8A4B39CC339E62011A02579D289B103693D0CF11FFAA3BD3DC0E7B12739",
+        1
+    },
+    {   /* n - 3 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254E",
+        "5ECBE4D1A6330A44C8F7EF951D4BF165E6C6B721EFADA985FB41661BC6E7FD6C78CB9BF2B6670082C8B4F931E59B5D1327D54FCAC7B047C265864ED85D82AFCD",
+        1
+    },
+    {   /* n - 2 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC63254F",
+        "7CF27B188D034F7E8A52380304B51AC3C08969E277F21B35A60B48FC47669978F888AAEE24712FC0D6C26539608BCF244582521AC3167DD661FB4862DD878C2E",
+        0
+    },
+    {   /* n - 1 */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632550",
+        "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296B01CBD1C01E58065711814B583F061E9D431CCA994CEA1313449BF97C840AE0A",
+        0
+    },
+    {   /* n */
+        "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551",
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        0
+    },
+    { //Reter add
+        "cd67aa310d091ed16e7e9892aa070e1994fcd714ae7c408fb946b72e5fe75d30",
+        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        0
+    },
+
+};
+
+/*
+	in array
+	{
+	private key, 
+	public key,
+	1=should be matched, 0=not matched
+	}
+*/
+
+    private_key_size = uECC_curve_private_key_size(uECC_secp256r1());
+    public_key_size = uECC_curve_public_key_size(uECC_secp256r1());
+    printf("private_key_size %d\n", private_key_size);
+    printf("public_key_size %d\n", public_key_size);
+
+    int test_item_number=9;
+	
+    strtobytes(secp256r1_tests[test_item_number].k, private, private_key_size);
+
+    printf("\nprivate:\n");
+    dump_hex_mycrypto(private, private_key_size);
+
+
+    result = uECC_compute_public_key(private, public, uECC_secp256r1());
+    printf("\npublic(calculated):\n");
+    dump_hex_mycrypto(public, public_key_size);
+
+//just for check public_key in array
+    strtobytes(secp256r1_tests[test_item_number].Q, expected, public_key_size);
+
+    printf("\npublic:\n");
+    dump_hex_mycrypto(expected, public_key_size);
+
 }
 
 //-------------------------------- test for ctap functions ------------------------------------------
@@ -705,6 +875,19 @@ void myctap()
         "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
         "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
         "\xb7\x2e\x5f\xe7\x5d\x30";
+
+
+    FILE *fptr;
+    int i;
+    fptr = fopen("attestation_key","w");
+
+    for(i=0;i<sizeof(attestation_key)-1;i++)
+       fprintf(fptr, "%c", attestation_key[i]);
+
+    fclose(fptr);
+    printf("\ncreate attestation_key\n");
+    printf("\n size = %ld\n", sizeof(attestation_key)-1);
+
 
 //write key to file
 /*

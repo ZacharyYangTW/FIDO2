@@ -22,3 +22,24 @@ Test_compute.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
 Test_ecdh.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
 Test_ecdsa.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
 uECC.h (crypto\ecc):uECC_Curve uECC_secp256r1(void);
+---- EccPoint_compute_public_key Matches (3 in 1 files) ----
+uECC.c (crypto\ecc):static uECC_word_t EccPoint_compute_public_key(uECC_word_t *result,
+uECC.c (crypto\ecc):        if (EccPoint_compute_public_key(_public, _private, curve)) {
+uECC.c (crypto\ecc):    if (!EccPoint_compute_public_key(_public, _private, curve)) {
+---- secp256k1_tests Matches (6 in 3 files) ----
+Ecdsa_test_vectors.c (crypto\ecc\test):Test secp256k1_tests[] = {
+Mycrypto.c:Test secp256k1_tests[] = {
+Mycrypto.c:    if (run(secp256k1_tests, sizeof(secp256k1_tests) / sizeof(secp256k1_tests[0]), uECC_secp256k1()) ) { \
+Public_key_test_vectors.c (crypto\ecc\test):Test secp256k1_tests[] = {
+---- uECC_compute_public_key Matches (11 in 5 files) ----
+Mycrypto.c:    uECC_compute_public_key(privkey, pubkey, _es256_curve);
+Mycrypto.c:        result = uECC_compute_public_key(private, public, curve);
+Mycrypto.c:        result = uECC_compute_public_key(private, public, uECC_secp256r1());
+Public_key_test_vectors.c (crypto\ecc\test):        result = uECC_compute_public_key(private, public, curve);
+Test_compute.c (crypto\ecc\test):            if (!uECC_compute_public_key(private, public_computed, curves[c])) {
+Test_compute.c (crypto\ecc\test):                printf("uECC_compute_public_key() failed\n");
+Test_compute.c (crypto\ecc\test):        success = uECC_compute_public_key(private, public_computed, curves[c]);
+Test_compute.c (crypto\ecc\test):            printf("uECC_compute_public_key() should have failed\n");
+uECC.c (crypto\ecc):int uECC_compute_public_key(const uint8_t *private_key, uint8_t *public_key, uECC_Curve curve) {
+uECC.h (crypto\ecc):/* uECC_compute_public_key() function.
+uECC.h (crypto\ecc):int uECC_compute_public_key(const uint8_t *private_key, uint8_t *public_key, uECC_Curve curve);
