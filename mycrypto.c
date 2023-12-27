@@ -505,10 +505,10 @@ int test_myecdsa(void)
             }
             memcpy(hash, public, sizeof(hash));
 
-    printf("\ni=%d, private:\n", i);
+    //printf("\ni=%d, private:\n", i);
     //dump_hex_mycrypto(public, 32);//reter debug
 			
-    printf("\ni=%d, public:\n", i);
+    //printf("\ni=%d, public:\n", i);
     //dump_hex_mycrypto(public, 64);//reter debug
 
             if (!uECC_sign(private, hash, sizeof(hash), sig, curves[c])) {
@@ -516,7 +516,7 @@ int test_myecdsa(void)
                 return 1;
             }
 			
-    printf("\ni=%d, sig:\n", i);
+    //printf("\ni=%d, sig:\n", i);
     //dump_hex_mycrypto(sig, 64);//reter debug
 
             if (!uECC_verify(public, hash, sizeof(hash), sig, curves[c])) {
@@ -591,7 +591,7 @@ Test secp256r1_tests[] = {
     },
     { //Reter add
         "cd67aa310d091ed16e7e9892aa070e1994fcd714ae7c408fb946b72e5fe75d30",
-        "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "45a902c12e9c0a33fa3e84504ab802dc4db9af15b1b63aea8d3f030355657d703fb402a497f483b8a6f93cd018ad920cb78a5a3e144892ef08f8caeafb32ab20",
         0
     },
 
@@ -629,6 +629,8 @@ Test secp256r1_tests[] = {
     printf("\npublic:\n");
     dump_hex_mycrypto(expected, public_key_size);
 
+    my_uECC_secp256r1_info();
+
 }
 
 //-------------------------------- test for ctap functions ------------------------------------------
@@ -648,13 +650,15 @@ uint8_t * device_get_attestation_key(){
 void crypto_ecc256_load_attestation_key(void)
 {
     _signing_key = device_get_attestation_key();
-    printf("\n_signing_key:\n");
-    dump_hex_mycrypto(_signing_key, 32);//reter debug
+    //printf("\n_signing_key:\n");
+    //dump_hex_mycrypto(_signing_key, 32);//reter debug
     _key_len = 32;
 }
 
 void crypto_ecc256_sign(uint8_t * data, int len, uint8_t * sig)
 {
+    printf("\n================ crypto_ecc256_sign - entry\n");
+
 
     printf("\ncrypto_ecc256_sign _signing_key:\n");
     dump_hex_mycrypto(_signing_key, 32);//reter debug
@@ -675,7 +679,8 @@ void crypto_ecc256_sign(uint8_t * data, int len, uint8_t * sig)
     }
     printf("\ncrypto_ecc256_sign sig_after:\n");
     dump_hex_mycrypto(sig, 32);//reter debug
-
+    
+    printf("\n================ crypto_ecc256_sign - exit\n");
 
 }
 
@@ -756,17 +761,17 @@ int ctap_calculate_signature(uint8_t * data, int datalen, uint8_t * clientDataHa
     }
     else
     {
-    printf("\nsha256 datalen=%u:\n", datalen);
-    printf("\nsha256 clientDataHash=%lu:\n", sizeof(clientDataHash));
-    printf("\nsha256 CLIENT_DATA_HASH_SIZE=%u:\n", CLIENT_DATA_HASH_SIZE);
+        //printf("\nsha256 datalen=%u:\n", datalen);
+        //printf("\nsha256 clientDataHash=%lu:\n", sizeof(clientDataHash));
+        //printf("\nsha256 CLIENT_DATA_HASH_SIZE=%u:\n", CLIENT_DATA_HASH_SIZE);
 
         crypto_sha256_init();
         crypto_sha256_update(data, datalen);
         crypto_sha256_update(clientDataHash, CLIENT_DATA_HASH_SIZE);
         crypto_sha256_final(hashbuf);
 		
-    printf("\nsha256 hashbuf:\n");
-    dump_hex_mycrypto(hashbuf, 32);//reter debug
+        printf("\nsha256 hashbuf:\n");
+        dump_hex_mycrypto(hashbuf, 32);//reter debug
 
         crypto_ecc256_sign(hashbuf, 32, sigbuf);
         return ctap_encode_der_sig(sigbuf,sigder);
@@ -864,18 +869,21 @@ void myctap()
     printf("\nder sig [%d]: \n", sigder_sz); 
     dump_hex_mycrypto(sigder, sigder_sz);
 
+/*
     uint8_t cert[1024];
     uint16_t cert_size = device_attestation_cert_der_get_size();
     printf("\ncert_size=%d\n", cert_size);
 
     device_attestation_read_cert_der(cert);
     dump_hex_mycrypto(cert, cert_size);//reter debug
+*/
 
+//write key to file
+/*
     static uint8_t attestation_key[] =
         "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
         "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
         "\xb7\x2e\x5f\xe7\x5d\x30";
-
 
     FILE *fptr;
     int i;
@@ -887,7 +895,7 @@ void myctap()
     fclose(fptr);
     printf("\ncreate attestation_key\n");
     printf("\n size = %ld\n", sizeof(attestation_key)-1);
-
+*/
 
 //write key to file
 /*
@@ -902,3 +910,31 @@ void myctap()
 */
 
 }
+
+void mystring()
+{
+//write key to file
+/*
+    static uint8_t attestation_key[] =
+        "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
+        "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
+        "\xb7\x2e\x5f\xe7\x5d\x30";
+*/
+
+    static uint8_t attestation_key[] =
+"\x30\x82\x01\xD9\x30\x82\x01\x7D\xA0\x03\x02\x01\x02\x02\x01\x01\x30\x0D\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x01\x0B\x05\x00\x30\x60\x31\x0B\x30\x09\x06\x03\x55\x04\x06\x13\x02\x55\x53\x31\x11\x30\x0F\x06\x03\x55\x04\x0A\x0C\x08\x43\x68\x72\x6F\x6D\x69\x75\x6D\x31\x22\x30\x20\x06\x03\x55\x04\x0B\x0C\x19\x41\x75\x74\x68\x65\x6E\x74\x69\x63\x61\x74\x6F\x72\x20\x41\x74\x74\x65\x73\x74\x61\x74\x69\x6F\x6E\x31\x1A\x30\x18\x06\x03\x55\x04\x03\x0C\x11\x42\x61\x74\x63\x68\x20\x43\x65\x72\x74\x69\x66\x69\x63\x61\x74\x65\x30\x1E\x17\x0D\x31\x37\x30\x37\x31\x34\x30\x32\x34\x30\x30\x30\x5A\x17\x0D\x34\x33\x31\x32\x30\x31\x30\x39\x34\x38\x32\x39\x5A\x30\x60\x31\x0B\x30\x09\x06\x03\x55\x04\x06\x13\x02\x55\x53\x31\x11\x30\x0F\x06\x03\x55\x04\x0A\x0C\x08\x43\x68\x72\x6F\x6D\x69\x75\x6D\x31\x22\x30\x20\x06\x03\x55\x04\x0B\x0C\x19\x41\x75\x74\x68\x65\x6E\x74\x69\x63\x61\x74\x6F\x72\x20\x41\x74\x74\x65\x73\x74\x61\x74\x69\x6F\x6E\x31\x1A\x30\x18\x06\x03\x55\x04\x03\x0C\x11\x42\x61\x74\x63\x68\x20\x43\x65\x72\x74\x69\x66\x69\x63\x61\x74\x65\x30\x59\x30\x13\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07\x03\x42\x00\x04\x8D\x61\x7E\x65\xC9\x50\x8E\x64\xBC\xC5\x67\x3A\xC8\x2A\x67\x99\xDA\x3C\x14\x46\x68\x2C\x25\x8C\x46\x3F\xFF\xDF\x58\xDF\xD2\xFA\x3E\x6C\x37\x8B\x53\xD7\x95\xC4\xA4\xDF\xFB\x41\x99\xED\xD7\x86\x2F\x23\xAB\xAF\x02\x03\xB4\xB8\x91\x1B\xA0\x56\x99\x94\xE1\x01\xA3\x25\x30\x23\x30\x0C\x06\x03\x55\x1D\x13"
+"\x01\x01\xFF\x04\x02\x30\x00\x30\x13\x06\x0B\x2B\x06\x01\x04\x01\x82\xE5\x1C\x02\x01\x01\x04\x04\x03\x02\x05\x20\x30\x0D\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x01\x0B\x05\x00\x03\x47\x00\x30\x44\x02\x20\x2F\x0D\x52\x85\x39\x49\xAB\xC1\x49\x2E\x95\x32\xEF\x49\xD0\x11\x32\xBA\xCB\xAA\x12\xE8\x77\xE1\x28\x3F\xDC\x07\x85\xAC\x5C\x3B\x02\x20\x11\xA0\x89\x9B\x64\xF8\x3A\x4B\x77\x19\x53\x8C\x21\xD4\xE7\x46\xA6\x69\x43\x66\xAD\x1C\xD4\xA0\x48\xDF\x10\x64\x67\x2A\xE8\xDA";
+
+    FILE *fptr;
+    int i;
+    fptr = fopen("mytest.der","w");
+
+    for(i=0;i<sizeof(attestation_key)-1;i++)
+       fprintf(fptr, "%c", attestation_key[i]);
+
+    fclose(fptr);
+    printf("\ncreate attestation_key\n");
+    printf("\n size = %ld\n", sizeof(attestation_key)-1);
+
+}
+

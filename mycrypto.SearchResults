@@ -43,3 +43,41 @@ Test_compute.c (crypto\ecc\test):            printf("uECC_compute_public_key() s
 uECC.c (crypto\ecc):int uECC_compute_public_key(const uint8_t *private_key, uint8_t *public_key, uECC_Curve curve) {
 uECC.h (crypto\ecc):/* uECC_compute_public_key() function.
 uECC.h (crypto\ecc):int uECC_compute_public_key(const uint8_t *private_key, uint8_t *public_key, uECC_Curve curve);
+---- dump_hex_mycrypto_2 Matches (8 in 1 files) ----
+uECC.c (crypto\ecc):    dump_hex_mycrypto_2(k, 4);//reter debug
+uECC.c (crypto\ecc):    dump_hex_mycrypto_2(tmp, 4);//reter debug
+uECC.c (crypto\ecc):    dump_hex_mycrypto_2(k, 4);//reter debug
+uECC.c (crypto\ecc):    dump_hex_mycrypto_2(k, 4);//reter debug
+uECC.c (crypto\ecc):    dump_hex_mycrypto_2(k, 4);//reter debug
+uECC.c (crypto\ecc):void dump_hex_mycrypto_2(uint8_t * buf, int size)
+uECC.c (crypto\ecc):    dump_hex_mycrypto_2(k, 4);//reter debug
+uECC.c (crypto\ecc):    dump_hex_mycrypto_2(k, 4);//reter debug
+---- uECC_secp256r1( Matches (11 in 5 files) ----
+Mycrypto.c:    if (run(secp256r1_tests, sizeof(secp256r1_tests) / sizeof(secp256r1_tests[0]), uECC_secp256r1()) ) { \
+Mycrypto.c:    curves[num_curves++] = uECC_secp256r1();
+Mycrypto.c:    private_key_size = uECC_curve_private_key_size(uECC_secp256r1());
+Mycrypto.c:    public_key_size = uECC_curve_public_key_size(uECC_secp256r1());
+Mycrypto.c:    result = uECC_compute_public_key(private, public, uECC_secp256r1());
+Mycrypto.c:    printf("\ncurve->n:\n", uECC_secp256r1().n);
+Mycrypto.c:    _es256_curve = uECC_secp256r1();
+Test_compress.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_compute.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_ecdh.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_ecdsa.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+---- uECC_secp256r1 Matches (16 in 8 files) ----
+Curve-specific.inc (crypto\ecc):uECC_Curve uECC_secp256r1(void) { return &curve_secp256r1; }
+Mycrypto.c:    if (run(secp256r1_tests, sizeof(secp256r1_tests) / sizeof(secp256r1_tests[0]), uECC_secp256r1()) ) { \
+Mycrypto.c:    curves[num_curves++] = uECC_secp256r1();
+Mycrypto.c:    private_key_size = uECC_curve_private_key_size(uECC_secp256r1());
+Mycrypto.c:    public_key_size = uECC_curve_public_key_size(uECC_secp256r1());
+Mycrypto.c:    result = uECC_compute_public_key(private, public, uECC_secp256r1());
+Mycrypto.c:    my_uECC_secp256r1_info();
+Mycrypto.c:    _es256_curve = uECC_secp256r1();
+Test_compress.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_compute.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_ecdh.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+Test_ecdsa.c (crypto\ecc\test):    curves[num_curves++] = uECC_secp256r1();
+uECC.c (crypto\ecc):void my_uECC_secp256r1_info()
+uECC.c (crypto\ecc):	_es256_curve = uECC_secp256r1();
+uECC.c (crypto\ecc):	printf("\nmy_uECC_secp256r1_info\n");
+uECC.h (crypto\ecc):uECC_Curve uECC_secp256r1(void);

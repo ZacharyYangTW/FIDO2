@@ -6,9 +6,7 @@ distinguished_name = dn
 
 [dn]
 C = US
-ST = Maryland
-O = Solo Keys
-OU = Root CA
+O = Chromium
+OU = Authenticator Attestation
 emailAddress = hello@solokeys.com
-CN = solokeys.com
-
+CN = Batch Certificate
