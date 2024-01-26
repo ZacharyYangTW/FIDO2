@@ -1334,20 +1334,20 @@ static int uECC_sign_with_k_internal(const uint8_t *private_key,
     }
 
 //reter debug
-    uECC_word_t myk2[uECC_MAX_WORDS]={0x0007000a};
-    uECC_vli_modInv(myk2, myk2, curve->n, num_n_words);
-    printf("\nk^-1 should be this \t" );
-    dump_hex_mycrypto_2(myk2, num_n_words*8);
-
-    //assign a "fixed" random number
-    uECC_word_t mytmp[uECC_MAX_WORDS]={0x00070003};
-    uECC_vli_set(tmp, mytmp, num_n_words);
-    //printf("k=" );
-    //dump_hex_mycrypto_2(k, num_n_words);	
-    printf("I assign a fixed tmp \t" );
-    dump_hex_mycrypto_2(tmp, num_n_words);
-    //printf("n=");
-    //dump_hex_mycrypto_2(curve->n, uECC_MAX_WORDS*8);
+//    uECC_word_t myk2[uECC_MAX_WORDS]={0x0007000a};
+//    uECC_vli_modInv(myk2, myk2, curve->n, num_n_words);
+//    printf("\nk^-1 should be this \t" );
+//    dump_hex_mycrypto_2(myk2, num_n_words*8);
+//
+//    //assign a "fixed" random number
+//    uECC_word_t mytmp[uECC_MAX_WORDS]={0x00070003};
+//    uECC_vli_set(tmp, mytmp, num_n_words);
+//    //printf("k=" );
+//    //dump_hex_mycrypto_2(k, num_n_words);	
+//    printf("I assign a fixed tmp \t" );
+//    dump_hex_mycrypto_2(tmp, num_n_words);
+//    //printf("n=");
+//    //dump_hex_mycrypto_2(curve->n, uECC_MAX_WORDS*8);
 //reter debug - end
 
     /* Prevent side channel analysis of uECC_vli_modInv() to determine

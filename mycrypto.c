@@ -353,8 +353,16 @@ int run(Test* tests, int num_tests, uECC_Curve curve) {
     return all_success;
 }
 
-void test_ecc_256(void)
+void test_public_key_test_vector(void)
 {
+Test my_tests[] = {
+    {   /* n - 3 */
+        "8e91efdeb33cb27d787facd2970addd8e7bd7e111e65ac463870363d8600d63c",
+        "d7da800758e222a07f4ec5b7e3f6d34b91c9e53e8ab3e2b002f86c07347a01c7358c3a8e387c5a4b2347ceaf40798d5bf3ca10a0a6a8ca5c83bc76f95afbb9b3",
+        1
+    },
+
+};
 Test secp256r1_tests[] = {
     {
         "0000000000000000000000000000000000000000000000000000000000000000",
@@ -457,13 +465,210 @@ Test secp256k1_tests[] = {
         printf("  Failed\n"); \
     }
 */
+/*
     printf("secp256r1:\n"); \
     if (run(secp256r1_tests, sizeof(secp256r1_tests) / sizeof(secp256r1_tests[0]), uECC_secp256r1()) ) { \
         printf("  All passed\n"); \
     } else { \
         printf("  Failed\n"); \
     }
+*/
+    printf("secp256r1:\n"); \
+    if (run(my_tests, sizeof(my_tests) / sizeof(my_tests[0]), uECC_secp256r1()) ) { \
+        printf("  All passed\n"); \
+    } else { \
+        printf("  Failed\n"); \
+    }
+}
 
+
+typedef struct {
+  const char* private_key;
+  const char* public_key;
+  const char* k;
+  const char* hash;
+  const char* r;
+  const char* s;
+} Test2;
+
+int run2(Test2* tests, int num_tests, uECC_Curve curve) {
+    uint8_t private[32] = {0};
+    uint8_t public[64] = {0};
+    uint8_t k[32] = {0};
+    uint8_t hash[32] = {0};
+    uint8_t r[32] = {0};
+    uint8_t s[32] = {0};
+
+    uint8_t signature[64] = {0};
+
+    int result;
+    int i;
+    int private_key_size;
+    int public_key_size;
+    int all_success = 1;
+
+    private_key_size = uECC_curve_private_key_size(curve);
+    public_key_size = uECC_curve_public_key_size(curve);
+
+    for (i = 0; i < num_tests; ++i) {
+        strtobytes(tests[i].private_key, private, private_key_size);
+        strtobytes(tests[i].public_key, public, public_key_size);
+        strtobytes(tests[i].k, k, private_key_size);
+        strtobytes(tests[i].hash, hash, private_key_size);
+        strtobytes(tests[i].r, r, private_key_size);
+        strtobytes(tests[i].s, s, private_key_size);
+
+        result = uECC_sign_with_k(private, hash, private_key_size, k, signature, curve);
+        if (!result) {
+            all_success = 0;
+            printf("  Sign failed for test %d\n", i);
+        }
+        if (result) {
+            if (memcmp(signature, r, private_key_size) != 0) {
+                all_success = 0;
+                printf("  Got incorrect r for test %d\n", i);
+                printf("    Expected: ");
+                vli_print(r, private_key_size);
+                printf("    Calculated: ");
+                vli_print(signature, private_key_size);
+            }
+            if (memcmp(signature + private_key_size, s, private_key_size) != 0) {
+                all_success = 0;
+                printf("  Got incorrect s for test %d\n", i);
+                printf("    Expected: ");
+                vli_print(s, private_key_size);
+                printf("    Calculated: ");
+                vli_print(signature + private_key_size, private_key_size);
+            }
+
+            result = uECC_verify(public, hash, private_key_size, signature, curve);
+            if (!result) {
+                printf("  Verify failed for test %d\n", i);
+            }
+        }
+
+    }
+
+    return all_success;
+}
+
+int run3(Test2* tests, int num_tests, uECC_Curve curve) {
+    uint8_t private[32] = {0};
+    uint8_t public[64] = {0};
+    uint8_t k[32] = {0};
+    uint8_t hash[32] = {0};
+    uint8_t r[32] = {0};
+    uint8_t s[32] = {0};
+
+    uint8_t mysignature[64] = {0};
+
+    int result;
+    int i;
+    int private_key_size;
+    int public_key_size;
+    int all_success = 1;
+
+    private_key_size = uECC_curve_private_key_size(curve);
+    public_key_size = uECC_curve_public_key_size(curve);
+
+    for (i = 0; i < num_tests; ++i) {
+        strtobytes(tests[i].public_key, public, public_key_size);
+        strtobytes(tests[i].hash, hash, private_key_size);
+        strtobytes(tests[i].r, r, private_key_size);
+        strtobytes(tests[i].s, s, private_key_size);
+		
+	    int j;
+	    for (j = 0; j < private_key_size; ++j) {
+	        mysignature[j] = r[j];
+	    }
+	    for (j = 0; j < private_key_size; ++j) {
+	        mysignature[private_key_size+j] = s[j];
+	    }
+
+	    //printf("\nmysignature: \n"); 
+	    //dump_hex_mycrypto(mysignature, private_key_size+private_key_size);
+	
+            result = uECC_verify(public, hash, private_key_size, mysignature, curve);
+            if (!result) {
+                printf("  run3 Verify failed for test %d\n", i);
+            }else
+            {
+                printf("  run3 Verify pass for test %d\n", i);
+            }
+
+    }
+
+    return all_success;
+}
+
+void test_ecdsa_test_vector(void)
+{
+/*
+Test2 secp256k1_tests2[] = {
+    {
+        "ebb2c082fd7727890a28ac82f6bdf97bad8de9f5d7c9028692de1a255cad3e0f",
+        "779dd197a5df977ed2cf6cb31d82d43328b790dc6b3b7d4437a427bd5847dfcde94b724a555b6d017bb7607c3e3281daf5b1699d6ef4124975c9237b917d426f",
+        "49a0d7b786ec9cde0d0721d72804befd06571c974b191efb42ecf322ba9ddd9a",
+        "4b688df40bcedbe641ddb16ff0a1842d9c67ea1c3bf63f3e0471baa664531d1a",
+        "241097efbf8b63bf145c8961dbdf10c310efbb3b2676bbc0f8b08505c9e2f795",
+        "021006b7838609339e8b415a7f9acb1b661828131aef1ecbc7955dfb01f3ca0e"
+    },
+};
+    printf("secp256k1:\n"); \
+    if (run2(secp256k1_tests2, sizeof(secp256k1_tests2) / sizeof(secp256k1_tests2[0]), uECC_secp256k1()) ) { \
+        printf("  All passed\n"); \
+    } else { \
+        printf("  Failed\n"); \
+    }
+*/
+
+/*
+typedef struct {
+  const char* private_key;
+  const char* public_key;
+  const char* k;
+  const char* hash;
+  const char* r;
+  const char* s;
+} Test2;
+*/
+
+
+/*
+Test2 secp256r1_tests2[] = {
+    {
+        "8e91efdeb33cb27d787facd2970addd8e7bd7e111e65ac463870363d8600d63c",//private_key
+        "d7da800758e222a07f4ec5b7e3f6d34b91c9e53e8ab3e2b002f86c07347a01c7358c3a8e387c5a4b2347ceaf40798d5bf3ca10a0a6a8ca5c83bc76f95afbb9b3",//public_key
+        "000000000000000000000000000000000000000000000000000000000007000a",//k=0x7000a
+        "bd8ddc45bfbf83d71d2b29f2fe8604e0ebdcd06b4b25ae17cf033caeeb1fcaa3",//hash (Reter: hashbuf)
+        "84105e1296e8d2541255de8edb5df5b96ceaf61d7f63d06981eebd0f202028d8",//r
+        "28ab66ddd141b9c17e5160482bc14dab2ab5234dda7eab007fa6ac53ed538002"//s
+    },
+};
+    printf("secp256r1:\n"); \
+    if (run2(secp256r1_tests2, sizeof(secp256r1_tests2) / sizeof(secp256r1_tests2[0]), uECC_secp256r1()) ) { \
+        printf("  All passed\n"); \
+    } else { \
+        printf("  Failed\n"); \
+    }
+*/
+
+Test2 secp256r1_tests2[] = {
+    {
+        "0000000000000000000000000000000000000000000000000000000000000000",//empty private_key
+        "d7da800758e222a07f4ec5b7e3f6d34b91c9e53e8ab3e2b002f86c07347a01c7358c3a8e387c5a4b2347ceaf40798d5bf3ca10a0a6a8ca5c83bc76f95afbb9b3",//public_key
+        "0000000000000000000000000000000000000000000000000000000000000000",//empty k
+        "7996a39bf8aa90874ed1c1198fcaecf6c6dfeaf6a5a3687873befd187da92cf3",//hash (Reter: hashbuf)
+        "84105e1296e8d2541255de8edb5df5b96ceaf61d7f63d06981eebd0f202028d8",//r
+        "1a77284e554f4e61e6bed2315579b91b486373e09493d52cdcf972a66c70e70f"//s
+    },
+};
+    printf("secp256r1:\n"); \
+    if (run3(secp256r1_tests2, sizeof(secp256r1_tests2) / sizeof(secp256r1_tests2[0]), uECC_secp256r1()) ) { \
+        printf("  All passed\n"); \
+    } else { \
+        printf("  Failed\n"); \
+    }
 }
 
 void dump_hex_mycrypto(uint8_t * buf, int size)
@@ -639,12 +844,19 @@ static int _key_len = 0;
 
 
 uint8_t * device_get_attestation_key(){
+    //origin
+    /*
     static uint8_t attestation_key[] =
         "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
         "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
         "\xb7\x2e\x5f\xe7\x5d\x30";
-	
-    return attestation_key;
+    */
+    //vianext
+    static uint8_t attestation_key[] =
+        "\x8e\x91\xef\xde\xb3\x3c\xb2\x7d\x78\x7f\xac\xd2\x97\x0a\xdd"
+        "\xd8\xe7\xbd\x7e\x11\x1e\x65\xac\x46\x38\x70\x36\x3d\x86\x00"
+        "\xd6\x3c";
+	return attestation_key;
 }
 
 void crypto_ecc256_load_attestation_key(void)
@@ -724,6 +936,11 @@ int ctap_encode_der_sig(const uint8_t * const in_sigbuf, uint8_t * const out_sig
     int8_t pad_s = ((in_sigbuf[32 + lead_s] & 0x80) == 0x80);
     int8_t pad_r = ((in_sigbuf[0 + lead_r] & 0x80) == 0x80);
 
+    //printf("\nlead_s=%u\n", lead_s);
+    //printf("lead_r=%u\n", lead_r);
+    //printf("pad_s=%u\n", pad_s);
+    //printf("pad_r=%u\n", pad_r);
+	
     memset(out_sigder, 0, 72);
     out_sigder[0] = 0x30;
     out_sigder[1] = 0x44 + pad_s + pad_r - lead_s - lead_r;
@@ -806,7 +1023,6 @@ static uint8_t _attestation_cert_der[] =
 "\x06\xf1\xe3\xab\x16\x21\x8e\xd8\xc0\x14\xaf\x09\x4f\x5b\x73\xef\x5e\x9e\x4b\xe7"
 "\x35\xeb\xdd\x9b\x6d\x8f\x7d\xf3\xc4\x3a\xd7";
 
-
 uint16_t device_attestation_cert_der_get_size(){
     return sizeof(_attestation_cert_der)-1;
 }
@@ -841,93 +1057,127 @@ void crypto_ecc256_init(void)
 }
 
 
-void myctap()
+    static uint8_t auth_data_buf[] =
+//"\xc2\x89\xc5\xca\x9b\x04\x60\xf9\x34\x6a\xb4\xe4\x2d\x84\x27\x43\x40\x4d\x31\xf4\x84\x68\x25\xa6\xd0\x65\xbe\x59\x7a\x87\x05\x1d\x41\x00\x00\x00\x0b\xf8\xa0\x11\xf3\x8c\x0a\x4d\x15\x80\x06\x17\x11\x1f\x9e\xdc\x7d\x00\x10\x89\x59\xce\xad\x5b\x5c\x48\x16\x4e\x8a\xbc\xd6\xd9\x43\x5c\x6f\xa3\x63\x61\x6c\x67\x65\x45\x53\x32\x35\x36\x61\x78\x58\x20\xf7\xc4\xf4\xa6\xf1\xd7\x95\x38\xdf\xa4\xc9\xac\x50\x84\x8d\xf7\x08\xbc\x1c\x99\xf5\xe6\x0e\x51\xb4\x2a\x52\x1b\x35\xd3\xb6\x9a\x61\x79\x58\x20\xde\x7b\x7d\x6c\xa5\x64\xe7\x0e\xa3\x21\xa4\xd5\xd9\x6e\xa0\x0e\xf0\xe2\xdb\x89\xdd\x61\xd4\x89\x4c\x15\xac\x58\x5b\xd2\x36\x84";
+"\x74\x96\x7e\x7a\xb8\x1d\xe9\x51\xe6\x42\xf3\x18\xc1\x1a\xc5\x3c\xb5\x69\x63\x74\x1b\x44\x59\x7d\x46\x06\x8e\xa9\x06\xdb\x6e\x28\x45\x00\x00\x00\x1a\x3a\x70\xbe\xb8\x2c\x29\x7b\xba\xc1\x3d\x44\xc6\x6f\x3f\x7d\xb1\x00\x46\x3c\x66\xf3\x79\x5c\x7a\x78\x2e\xf6\xca\x5a\xb8\xfc\x90\x9a\x94\xab\xb2\xcd\xc6\x9b\xb4\x54\x11\x0e\x82\x74\x41\x21\x3d\x8b\x95\xde\xc9\x74\x96\x7e\x7a\xb8\x1d\xe9\x51\xe6\x42\xf3\x18\xc1\x1a\xc5\x3c\xb5\x69\x63\x74\x1b\x44\x59\x7d\x46\x06\x8e\xa9\x06\xdb\x6e\x28\x1a\x00\x00\x00\xa5\x01\x02\x03\x26\x20\x01\x21\x58\x20\xc4\xa6\x0d\xde\x02\x7b\x38\x82\x14\x27\x20\x39\x88\x08\x53\xbd\x43\xe0\x7f\x79\x9b\xbe\x22\x6a\x42\x80\x5b\x95\xfd\x8c\x96\x15\x22\x58\x20\x65\x0f\xbe\x0c\x2a\x42\x4b\xd1\x94\x55\x1e\x3d\x69\x1a\x10\x5c\x06\xb1\x6b\xa8\x96\x82\x7b\x73\x77\x93\x72\x58\xbc\xd9\xb0\xfe";
+
+uint16_t device_auth_data_get_size(){
+    return sizeof(auth_data_buf)-1;
+}
+
+void device_read_auth_data_buf(uint8_t * dst){
+    memmove(dst, auth_data_buf, device_auth_data_get_size());
+}
+
+    static uint8_t attestation_key2[] =
+        "\x8e\x91\xef\xde\xb3\x3c\xb2\x7d\x78\x7f\xac\xd2\x97\x0a\xdd"
+        "\xd8\xe7\xbd\x7e\x11\x1e\x65\xac\x46\x38\x70\x36\x3d\x86\x00"
+        "\xd6\x3c";
+
+void ctap_make_credential_input_authData_calculate_sig()
 {
 //refer to ctap_make_credential in ctap.c
     CTAP_makeCredential MC;
 
-   
+   printf("\nhi, ctap_make_credential_input_authData_calculate_sig\n");
+
     uint8_t auth_data_buf[310];
     uint8_t * sigbuf = auth_data_buf + 32;
     uint8_t * sigder = auth_data_buf + 32 + 64;
-    uint32_t auth_data_sz = sizeof(auth_data_buf);
+    //uint32_t auth_data_sz = sizeof(auth_data_buf);
 
 //must initial
-	crypto_ecc256_init();;
+	crypto_ecc256_init();
 
 //fake data
-	*auth_data_buf='\0';//reter debug
-	*MC.clientDataHash='\0';//reter debug
+    device_read_auth_data_buf(auth_data_buf);
+    uint32_t auth_data_sz = device_auth_data_get_size();
+    printf("\nauth_data_sz=%d\n", auth_data_sz);
 
-    printf("\nhi, Zach myctap\n");
+    dump_hex_mycrypto(auth_data_buf, auth_data_sz);
+	
     crypto_ecc256_load_attestation_key();
+
+//reter debug - start
+    uint8_t myclientDataHash[CLIENT_DATA_HASH_SIZE]=
+    {0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd};
+    //{0x68, 0x71, 0x34, 0x96, 0x82, 0x22, 0xec, 0x17, 0x20, 0x2e, 0x42, 0x50, 0x5f, 0x8e, 0xd2, 0xb1, 0x6a, 0xe2, 0x2f, 0x16, 0xbb, 0x05, 0xb8, 0x8c, 0x25, 0xdb, 0x9e, 0x60, 0x26, 0x45, 0xf1, 0x41};
+
+    printf("\nMC.clientDataHash: \n"); 
+    dump_hex_mycrypto(myclientDataHash, CLIENT_DATA_HASH_SIZE);
+//reter debug - end
+
+/*
+    int i;
+    for (i = 0; i < CLIENT_DATA_HASH_SIZE; ++i) {
+        MC.clientDataHash[i] = myclientDataHash[i];
+    }
+    printf("\nMC.clientDataHash: \n"); 
+    dump_hex_mycrypto(MC.clientDataHash, CLIENT_DATA_HASH_SIZE);
     int sigder_sz = ctap_calculate_signature(auth_data_buf, auth_data_sz, MC.clientDataHash, auth_data_buf, sigbuf, sigder, COSE_ALG_ES256);
+*/
+
+    int sigder_sz = ctap_calculate_signature(auth_data_buf, auth_data_sz, myclientDataHash, auth_data_buf, sigbuf, sigder, COSE_ALG_ES256);
 
     printf("\nsig: \n"); 
-    dump_hex_mycrypto(sigbuf, 32);
+    dump_hex_mycrypto(sigbuf, 64);
 
     printf("\nder sig [%d]: \n", sigder_sz); 
     dump_hex_mycrypto(sigder, sigder_sz);
 
-/*
-    uint8_t cert[1024];
-    uint16_t cert_size = device_attestation_cert_der_get_size();
-    printf("\ncert_size=%d\n", cert_size);
-
-    device_attestation_read_cert_der(cert);
-    dump_hex_mycrypto(cert, cert_size);//reter debug
-*/
-
-//write key to file
-/*
-    static uint8_t attestation_key[] =
-        "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
-        "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
-        "\xb7\x2e\x5f\xe7\x5d\x30";
-
-    FILE *fptr;
-    int i;
-    fptr = fopen("attestation_key","w");
-
-    for(i=0;i<sizeof(attestation_key)-1;i++)
-       fprintf(fptr, "%c", attestation_key[i]);
-
-    fclose(fptr);
-    printf("\ncreate attestation_key\n");
-    printf("\n size = %ld\n", sizeof(attestation_key)-1);
-*/
-
-//write key to file
-/*
-    FILE *fptr;
-    int i;
-    fptr = fopen("_attestation_cert_der.der","w");
-
-    for(i=0;i<sizeof(_attestation_cert_der)-1;i++)
-       fprintf(fptr, "%c", _attestation_cert_der[i]);
-
-    fclose(fptr);
-*/
-
 }
 
-void mystring()
+static uint8_t aaguid[] =
+	"\x3a\x70\xbe\xb8\x2c\x29\x7b\xba\xc1\x3d\x44\xc6\x6f\x3f\x7d\xb1";
+
+void device_read_aaguid(uint8_t * dst){
+    memmove(dst, aaguid, 16);
+}
+uint16_t device_aaguid_get_size(){
+    return sizeof(aaguid)-1;
+}
+
+static uint8_t vianext_attestation_key[] =
+        "\x8e\x91\xef\xde\xb3\x3c\xb2\x7d\x78\x7f\xac\xd2\x97\x0a\xdd"
+        "\xd8\xe7\xbd\x7e\x11\x1e\x65\xac\x46\x38\x70\x36\x3d\x86\x00"
+        "\xd6\x3c";
+
+uint16_t device_attestation_key_get_size(){
+    return sizeof(vianext_attestation_key)-1;
+}
+
+void device_attestation_key_read(uint8_t * dst){
+    memmove(dst, vianext_attestation_key, device_attestation_key_get_size());
+}
+
+
+void print_byte_array()
+{
+    uint8_t aaguid[16];
+    uint16_t aaguid_size = device_aaguid_get_size();
+    printf("\naaguid_size=%d\n", aaguid_size);
+
+    device_read_aaguid(aaguid);
+    dump_hex_mycrypto(aaguid, aaguid_size);//reter debug
+
+
+    uint8_t vianext_attestation_key[32];
+    uint16_t vianext_attestation_key_size = device_attestation_key_get_size();
+    printf("\nvianext_attestation_key_size=%d\n", vianext_attestation_key_size);
+
+    device_attestation_key_read(vianext_attestation_key);
+    dump_hex_mycrypto(vianext_attestation_key, vianext_attestation_key_size);//reter debug
+}
+void write_byte_array_to_der_file()
 {
 //write key to file
-/*
-    static uint8_t attestation_key[] =
-        "\xcd\x67\xaa\x31\x0d\x09\x1e\xd1\x6e\x7e\x98\x92\xaa"
-        "\x07\x0e\x19\x94\xfc\xd7\x14\xae\x7c\x40\x8f\xb9\x46"
-        "\xb7\x2e\x5f\xe7\x5d\x30";
-*/
 
     static uint8_t attestation_key[] =
-"\x30\x82\x01\xD9\x30\x82\x01\x7D\xA0\x03\x02\x01\x02\x02\x01\x01\x30\x0D\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x01\x0B\x05\x00\x30\x60\x31\x0B\x30\x09\x06\x03\x55\x04\x06\x13\x02\x55\x53\x31\x11\x30\x0F\x06\x03\x55\x04\x0A\x0C\x08\x43\x68\x72\x6F\x6D\x69\x75\x6D\x31\x22\x30\x20\x06\x03\x55\x04\x0B\x0C\x19\x41\x75\x74\x68\x65\x6E\x74\x69\x63\x61\x74\x6F\x72\x20\x41\x74\x74\x65\x73\x74\x61\x74\x69\x6F\x6E\x31\x1A\x30\x18\x06\x03\x55\x04\x03\x0C\x11\x42\x61\x74\x63\x68\x20\x43\x65\x72\x74\x69\x66\x69\x63\x61\x74\x65\x30\x1E\x17\x0D\x31\x37\x30\x37\x31\x34\x30\x32\x34\x30\x30\x30\x5A\x17\x0D\x34\x33\x31\x32\x30\x31\x30\x39\x34\x38\x32\x39\x5A\x30\x60\x31\x0B\x30\x09\x06\x03\x55\x04\x06\x13\x02\x55\x53\x31\x11\x30\x0F\x06\x03\x55\x04\x0A\x0C\x08\x43\x68\x72\x6F\x6D\x69\x75\x6D\x31\x22\x30\x20\x06\x03\x55\x04\x0B\x0C\x19\x41\x75\x74\x68\x65\x6E\x74\x69\x63\x61\x74\x6F\x72\x20\x41\x74\x74\x65\x73\x74\x61\x74\x69\x6F\x6E\x31\x1A\x30\x18\x06\x03\x55\x04\x03\x0C\x11\x42\x61\x74\x63\x68\x20\x43\x65\x72\x74\x69\x66\x69\x63\x61\x74\x65\x30\x59\x30\x13\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07\x03\x42\x00\x04\x8D\x61\x7E\x65\xC9\x50\x8E\x64\xBC\xC5\x67\x3A\xC8\x2A\x67\x99\xDA\x3C\x14\x46\x68\x2C\x25\x8C\x46\x3F\xFF\xDF\x58\xDF\xD2\xFA\x3E\x6C\x37\x8B\x53\xD7\x95\xC4\xA4\xDF\xFB\x41\x99\xED\xD7\x86\x2F\x23\xAB\xAF\x02\x03\xB4\xB8\x91\x1B\xA0\x56\x99\x94\xE1\x01\xA3\x25\x30\x23\x30\x0C\x06\x03\x55\x1D\x13"
-"\x01\x01\xFF\x04\x02\x30\x00\x30\x13\x06\x0B\x2B\x06\x01\x04\x01\x82\xE5\x1C\x02\x01\x01\x04\x04\x03\x02\x05\x20\x30\x0D\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x01\x0B\x05\x00\x03\x47\x00\x30\x44\x02\x20\x2F\x0D\x52\x85\x39\x49\xAB\xC1\x49\x2E\x95\x32\xEF\x49\xD0\x11\x32\xBA\xCB\xAA\x12\xE8\x77\xE1\x28\x3F\xDC\x07\x85\xAC\x5C\x3B\x02\x20\x11\xA0\x89\x9B\x64\xF8\x3A\x4B\x77\x19\x53\x8C\x21\xD4\xE7\x46\xA6\x69\x43\x66\xAD\x1C\xD4\xA0\x48\xDF\x10\x64\x67\x2A\xE8\xDA";
+"\x68\x71\x34\x96\x82\x22\xec\x17\x20\x2e\x42\x50\x5f\x8e\xd2\xb1\x6a\xe2\x2f\x16\xbb\x05\xb8\x8c\x25\xdb\x9e\x60\x26\x45\xf1\x41\xc2\x89\xc5\xca\x9b\x04\x60\xf9\x34\x6a\xb4\xe4\x2d\x84\x27\x43\x40\x4d\x31\xf4\x84\x68\x25\xa6\xd0\x65\xbe\x59\x7a\x87\x05\x1d\x41\x00\x00\x00\x0b\xf8\xa0\x11\xf3\x8c\x0a\x4d\x15\x80\x06\x17\x11\x1f\x9e\xdc\x7d\x00\x10\x89\x59\xce\xad\x5b\x5c\x48\x16\x4e\x8a\xbc\xd6\xd9\x43\x5c\x6f\xa3\x63\x61\x6c\x67\x65\x45\x53\x32\x35\x36\x61\x78\x58\x20\xf7\xc4\xf4\xa6\xf1\xd7\x95\x38\xdf\xa4\xc9\xac\x50\x84\x8d\xf7\x08\xbc\x1c\x99\xf5\xe6\x0e\x51\xb4\x2a\x52\x1b\x35\xd3\xb6\x9a\x61\x79\x58\x20\xde\x7b\x7d\x6c\xa5\x64\xe7\x0e\xa3\x21\xa4\xd5\xd9\x6e\xa0\x0e\xf0\xe2\xdb\x89\xdd\x61\xd4\x89\x4c\x15\xac\x58\x5b\xd2\x36\x84";
 
     FILE *fptr;
     int i;
-    fptr = fopen("mytest.der","w");
+    fptr = fopen("hashbuf2.txt","w");
 
     for(i=0;i<sizeof(attestation_key)-1;i++)
        fprintf(fptr, "%c", attestation_key[i]);
@@ -935,6 +1185,35 @@ void mystring()
     fclose(fptr);
     printf("\ncreate attestation_key\n");
     printf("\n size = %ld\n", sizeof(attestation_key)-1);
+
+}
+void read_der_file_to_byte_array()
+{
+
+    printf("\nprint my.crt.der\n");
+
+    FILE *fptr;
+    fptr = fopen("my.crt.der","r");
+    //fptr = fopen("my.key.der","r");
+
+	unsigned char ch;
+	int count =0;
+
+	putchar('"');
+
+	while(!feof(fptr)){
+		fread(&ch, sizeof(char), 1, fptr);
+		printf("\\x%02X", ch);
+		count++;
+		if(count >= 20) {
+			putchar('"');
+			putchar('\n');
+			putchar('"');
+			count = 0;
+		}
+	}
+	putchar('"');
+	printf("\n");
 
 }
 
